@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>复式记账网页程序</title>
   <style>
     :root {
@@ -28,23 +29,29 @@
     body {
       margin: 0;
       padding: 0;
-      min-height: 100vh;
+      min-height: 100dvh;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:
         radial-gradient(circle at top left, #1e293b 0, #020617 60%),
         radial-gradient(circle at bottom right, #0f766e 0, #020617 55%);
       color: var(--text-main);
+      -webkit-text-size-adjust: 100%;
     }
 
     .app {
       width: 100%;
-      min-height: 100vh;
+      min-height: 100dvh;
       margin: 0;
       background: var(--bg-app);
       border-radius: 0;
       box-shadow: none;
-      padding: 18px 24px 28px;
       border: none;
+
+      /* 顶部 + 灵动岛 safe-area，底部 + Home Indicator safe-area */
+      padding-top: calc(18px + env(safe-area-inset-top));
+      padding-right: max(24px, env(safe-area-inset-right));
+      padding-bottom: calc(28px + env(safe-area-inset-bottom));
+      padding-left: max(24px, env(safe-area-inset-left));
     }
 
     .app-header {
@@ -172,6 +179,7 @@
       justify-content: center;
       gap: 4px;
       font-weight: 500;
+      -webkit-appearance: none;
     }
 
     button:hover {
@@ -384,6 +392,160 @@
       display: none;
     }
 
+    /* 表格横向滚动容器（移动端） */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .table-container table {
+      min-width: 720px;
+    }
+
+    /* iPhone 等窄屏优化：<= 600px */
+    @media (max-width: 600px) {
+      .app {
+        padding-top: calc(10px + env(safe-area-inset-top));
+        padding-right: max(10px, env(safe-area-inset-right));
+        padding-bottom: calc(18px + env(safe-area-inset-bottom));
+        padding-left: max(10px, env(safe-area-inset-left));
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      h1 {
+        font-size: 17px;
+      }
+
+      .app-subtitle {
+        font-size: 11px;
+      }
+
+      .badge {
+        font-size: 10px;
+        padding: 3px 8px;
+        box-shadow: none;
+      }
+
+      .layout-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      fieldset {
+        padding: 8px 8px 10px;
+      }
+
+      legend {
+        font-size: 12px;
+      }
+
+      label {
+        width: 100%;
+        margin: 2px 0;
+        font-size: 11px;
+        white-space: normal;
+      }
+
+      .section-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .section-row label {
+        width: 100%;
+      }
+
+      input,
+      select {
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .note-input {
+        min-width: 0;
+      }
+
+      .summary {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .summary-item {
+        font-size: 12px;
+      }
+
+      .summary-value {
+        font-size: 12px;
+      }
+
+      .table-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .table-toolbar-right {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      button {
+        padding: 5px 10px;
+        font-size: 11px;
+      }
+
+      button.small {
+        padding: 2px 8px;
+        font-size: 10px;
+      }
+
+      th,
+      td {
+        padding: 4px 4px;
+        font-size: 11px;
+      }
+    }
+
+    /* 特别窄（老款 iPhone / 小窗口） */
+    @media (max-width: 360px) {
+      .badge {
+        display: none;
+      }
+
+      h1 {
+        font-size: 16px;
+      }
+
+      .summary {
+        padding: 8px 10px;
+      }
+    }
+
+    /* iPhone 15 Pro / 15 Pro Max 等 393x852 DPR=3 的机型微调 */
+    @media screen and (width: 393px) and (height: 852px) and (-webkit-device-pixel-ratio: 3) {
+      .app {
+        padding-top: calc(12px + env(safe-area-inset-top));
+        padding-bottom: calc(20px + env(safe-area-inset-bottom));
+      }
+
+      h1 {
+        font-size: 18px;
+      }
+
+      .summary {
+        gap: 8px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -412,7 +574,7 @@
       </div>
       <div class="summary-item">
         <span class="summary-label">消费额</span>
-        <span class="summary-value.consume summary-value consume" id="consumeTotal">0</span>
+        <span class="summary-value consume" id="consumeTotal">0</span>
       </div>
       <div class="summary-item">
         <span class="summary-label">总资产余额</span>
@@ -591,22 +753,24 @@
         </div>
       </div>
 
-      <table id="recordsTable">
-        <thead>
-          <tr>
-            <th style="min-width:90px;">操作</th>
-            <th>分类</th>
-            <th>账户类型</th>
-            <th>金额</th>
-            <th>货币</th>
-            <th>记账时间</th>
-            <th>发生时间</th>
-            <th>备注</th>
-            <th>来源</th>
-          </tr>
-        </thead>
-        <tbody id="recordsTbody"></tbody>
-      </table>
+      <div class="table-container">
+        <table id="recordsTable">
+          <thead>
+            <tr>
+              <th style="min-width:90px;">操作</th>
+              <th>分类</th>
+              <th>账户类型</th>
+              <th>金额</th>
+              <th>货币</th>
+              <th>记账时间</th>
+              <th>发生时间</th>
+              <th>备注</th>
+              <th>来源</th>
+            </tr>
+          </thead>
+          <tbody id="recordsTbody"></tbody>
+        </table>
+      </div>
     </fieldset>
   </div>
 
