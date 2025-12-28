@@ -57,7 +57,6 @@
       box-shadow: none;
       border: none;
 
-      /* 顶部 + 灵动岛 safe-area，底部 + Home Indicator safe-area */
       padding-top: calc(18px + env(safe-area-inset-top));
       padding-right: max(24px, env(safe-area-inset-right));
       padding-bottom: calc(28px + env(safe-area-inset-bottom));
@@ -66,9 +65,12 @@
 
     .app-header {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
+      gap: 6px;
       margin-bottom: 14px;
+      text-align: center;
     }
 
     .app-title-group {
@@ -113,7 +115,6 @@
 
     .layout-grid {
       display: grid;
-      /* 左：汇率设置，右：录入账单（更宽） */
       grid-template-columns: minmax(0, 1fr) minmax(0, 2.1fr);
       gap: 16px;
       margin-bottom: 16px;
@@ -348,6 +349,34 @@
       gap: 6px;
     }
 
+    /* --- 手动汇率区域 --- */
+    .section-manual-rates {
+      margin-top: 8px;
+      gap: 8px;
+    }
+
+    .section-manual-rates-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .manual-rate-row {
+      align-items: flex-start;
+    }
+
+    .field-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .field-label {
+      font-size: 12px;
+      color: #111827;
+    }
+
     table {
       border-collapse: collapse;
       width: 100%;
@@ -402,7 +431,6 @@
       display: none;
     }
 
-    /* 表格横向滚动容器（移动端） */
     .table-container {
       width: 100%;
       overflow-x: auto;
@@ -424,49 +452,8 @@
         box-shadow: none;
       }
 
-      /* 关键：在窄屏不要强制 720px，避免整页被缩小 */
       .table-container table {
         min-width: 100%;
-      }
-
-      .app-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-      }
-
-      h1 {
-        font-size: 17px;
-      }
-
-      .app-subtitle {
-        font-size: 11px;
-      }
-
-      .badge {
-        font-size: 10px;
-        padding: 3px 8px;
-        box-shadow: none;
-      }
-
-      .layout-grid {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 12px;
-      }
-
-      fieldset {
-        padding: 8px 8px 10px;
-      }
-
-      legend {
-        font-size: 12px;
-      }
-
-      label {
-        width: 100%;
-        margin: 2px 0;
-        font-size: 11px;
-        white-space: normal;
       }
 
       .section-row {
@@ -529,9 +516,24 @@
         padding: 4px 4px;
         font-size: 11px;
       }
+
+      /* 手动汇率：手机上拆成上下布局，避免文字竖排 */
+      .manual-rate-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .field-inline {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .field-inline select,
+      .field-inline input {
+        flex: 1 1 auto;
+      }
     }
 
-    /* 特别窄（老款 iPhone / 小窗口） */
     @media (max-width: 360px) {
       .badge {
         display: none;
@@ -546,7 +548,6 @@
       }
     }
 
-    /* iPhone 15 Pro / 15 Pro Max 等 393x852 DPR=3 的机型微调 */
     @media screen and (width: 393px) and (height: 852px) and (-webkit-device-pixel-ratio: 3) {
       .app {
         padding-top: calc(12px + env(safe-area-inset-top));
@@ -603,7 +604,6 @@
       </div>
     </div>
 
-    <!-- 上半部分：左汇率、右录入（录入更宽） -->
     <div class="layout-grid">
       <!-- 左：汇率设置 -->
       <div>
@@ -621,29 +621,15 @@
                   <option value="EUR">EUR</option>
                 </select>
               </label>
-              <span class="small">作为统计时的统一货币，可随时切换</span>
+              <span class="small">用于统计和换算的统一货币</span>
             </div>
 
-            <div class="section-row">
-              <label>
-                <input type="radio" name="rateMode" value="auto" checked>
-                <span>自动获取示例汇率</span>
-              </label>
-              <span class="small">（使用免费 API，可能因网络原因失败）</span>
-            </div>
+            <div class="section-column section-manual-rates">
+              <div class="section-manual-rates-title">手动汇率设置</div>
 
-            <div class="section-row">
-              <label>
-                <input type="radio" name="rateMode" value="manual">
-                <span>手动设置汇率</span>
-              </label>
-              <span class="small">（手动设置优先级最高）</span>
-            </div>
-
-            <div id="manualRateArea" class="hidden">
-              <div class="section-row">
-                <label>
-                  <span>币种：</span>
+              <div class="section-row manual-rate-row">
+                <div class="field-inline">
+                  <span class="field-label">币种</span>
                   <select id="manualCurrencyInput" style="width:90px;">
                     <option value="">选择币种</option>
                     <option value="JPY">JPY</option>
@@ -651,28 +637,33 @@
                     <option value="USD">USD</option>
                     <option value="EUR">EUR</option>
                   </select>
-                </label>
-                <label>
-                  <span>1 单位该币种 =</span>
+                </div>
+
+                <div class="field-inline">
+                  <span class="field-label">1 单位 =</span>
                   <input type="number" step="0.0001" id="manualRateInput" style="width:90px;">
-                  <span id="baseCurrencyInline">JPY</span>
-                </label>
+                  <span class="field-label" id="baseCurrencyInline">JPY</span>
+                </div>
+              </div>
+
+              <div class="form-actions">
                 <button type="button" id="addManualRateBtn">添加 / 更新汇率</button>
               </div>
-              <div class="small">
-                已设置汇率（手动）：<span id="manualRateList"></span>
-              </div>
-            </div>
 
-            <div class="hint-box">
-              说明：统计时优先使用「手动汇率」；若没有手动值，则尝试使用自动获取的汇率；两者都没有时，按 1 处理。<br>
-              所有数据和设置会保存在浏览器的 localStorage 中，刷新页面不会丢失（同一浏览器生效）。
+              <div class="small">
+                已设置汇率：<span id="manualRateList"></span>
+              </div>
+
+              <div class="hint-box">
+                说明：在此处设置「其他币种 → 基准货币」的汇率；未设置的币种按 1:1 处理。<br>
+                所有数据和设置会保存在浏览器的 localStorage 中。
+              </div>
             </div>
           </div>
         </fieldset>
       </div>
 
-      <!-- 右：录入表单（更宽） -->
+      <!-- 右：录入表单 -->
       <div>
         <fieldset>
           <legend>录入账单</legend>
@@ -751,7 +742,7 @@
       </div>
     </div>
 
-    <!-- 账单列表 + 导入导出工具条 -->
+    <!-- 账单列表 -->
     <fieldset>
       <legend>账单列表</legend>
 
@@ -791,16 +782,14 @@
 
 <script>
 (function() {
-  // ------- 状态 -------
   let records = [];
   let nextId = 1;
-  let nextGroupId = 1; // 一次录入产生的一组记录的 groupId
+  let nextGroupId = 1;
 
   const LS_KEY_RECORDS = "de_records";
   const LS_KEY_NEXT_ID = "de_nextId";
   const LS_KEY_BASE = "de_baseCurrency";
   const LS_KEY_MANUAL = "de_manualRates";
-  const LS_KEY_RATE_MODE = "de_rateMode";
   const LS_KEY_GROUP = "de_nextGroupId";
 
   const accountTypesForExpenseMirror = ["现金", "共同资产", "存款", "日信", "中信"];
@@ -824,7 +813,6 @@
   const baseCurrencyInput = document.getElementById("baseCurrency");
   const baseCurrencyLabel = document.getElementById("baseCurrencyLabel");
   const baseCurrencyInline = document.getElementById("baseCurrencyInline");
-  const manualRateArea = document.getElementById("manualRateArea");
   const manualCurrencyInput = document.getElementById("manualCurrencyInput");
   const manualRateInput = document.getElementById("manualRateInput");
   const addManualRateBtn = document.getElementById("addManualRateBtn");
@@ -833,17 +821,13 @@
   const exportBtn = document.getElementById("exportBtn");
   const importFile = document.getElementById("importFile");
 
-  const rateModeRadios = document.querySelectorAll("input[name='rateMode']");
-
   let manualRates = {};
-  let autoRates = {};
 
   function todayStr() {
     const d = new Date();
     return d.toISOString().slice(0, 10);
   }
 
-  // 默认日期 = 今天；统计月份 = 当前月
   recordDateEl.value = todayStr();
   occurDateEl.value = todayStr();
   if (summaryMonthEl) {
@@ -864,20 +848,6 @@
   }
   accountTypeEl.addEventListener("change", syncCategoryForAccountType);
 
-  function getRateMode() {
-    for (const r of rateModeRadios) {
-      if (r.checked) return r.value;
-    }
-    return "auto";
-  }
-  function setRateMode(mode) {
-    rateModeRadios.forEach(r => { r.checked = (r.value === mode); });
-  }
-  function updateRateModeUI() {
-    const mode = getRateMode();
-    manualRateArea.classList.toggle("hidden", mode !== "manual");
-  }
-
   function renderManualRateList() {
     const entries = Object.entries(manualRates || {});
     if (!entries.length) {
@@ -893,7 +863,6 @@
       localStorage.setItem(LS_KEY_NEXT_ID, String(nextId));
       localStorage.setItem(LS_KEY_BASE, baseCurrencyInput.value || "JPY");
       localStorage.setItem(LS_KEY_MANUAL, JSON.stringify(manualRates || {}));
-      localStorage.setItem(LS_KEY_RATE_MODE, getRateMode());
       localStorage.setItem(LS_KEY_GROUP, String(nextGroupId));
     } catch (e) {
       console.log("保存到 localStorage 失败：", e);
@@ -934,9 +903,6 @@
       }
     } catch(e) { console.log("读取手动汇率失败：", e); }
 
-    const savedMode = localStorage.getItem(LS_KEY_RATE_MODE);
-    if (savedMode) setRateMode(savedMode);
-
     const savedGroup = localStorage.getItem(LS_KEY_GROUP);
     if (savedGroup) {
       const g = parseInt(savedGroup, 10);
@@ -954,26 +920,11 @@
     }
   }
 
-  async function fetchAutoRates() {
-    const base = baseCurrencyInput.value || "JPY";
-    try {
-      const resp = await fetch("https://open.er-api.com/v6/latest/" + encodeURIComponent(base));
-      if (!resp.ok) return;
-      const data = await resp.json();
-      if (data && data.rates) {
-        autoRates = data.rates;
-        recomputeSummary();
-      }
-    } catch (e) {
-      console.log("自动获取汇率失败（不影响基本功能）:", e);
-    }
-  }
-
   function getRateToBase(currency) {
     const cur = (currency || "").toUpperCase();
-    const mode = getRateMode();
+    const base = (baseCurrencyInput.value || "JPY").toUpperCase();
+    if (cur === base) return 1;
     if (manualRates[cur]) return manualRates[cur];
-    if (mode === "auto" && autoRates[cur]) return autoRates[cur];
     return 1;
   }
 
@@ -1055,7 +1006,6 @@
     }
   }
 
-  // 用于净资产计算的有符号金额；消费账户不影响资产。
   function getSignedAmount(rec) {
     if (rec.accountType === "消费") {
       return 0;
@@ -1084,7 +1034,7 @@
       const rate = getRateToBase(rec.currency || base);
 
       if (rec.accountType === "消费") {
-        consumeTotalBase += rec.amount * rate; // 消费只看绝对值
+        consumeTotalBase += rec.amount * rate;
         return;
       }
 
@@ -1141,7 +1091,7 @@
       tdOps.appendChild(delBtn);
       tr.appendChild(tdOps);
 
-      const displayAmount = rec.amount; // 所有金额都显示为正数
+      const displayAmount = rec.amount;
 
       addCell(tr, rec.category);
       addCell(tr, rec.accountType);
@@ -1188,7 +1138,6 @@
     if (!rec) return;
 
     if (rec.source === "手动" && typeof rec.groupId === "number") {
-      // 删除手动记录时，把同组的自动记录一并删除
       records = records.filter(r => r.groupId !== rec.groupId);
     } else {
       records = records.filter(r => r.id !== id);
@@ -1198,8 +1147,6 @@
     recomputeSummary();
     saveState();
   }
-
-  // ------- 事件 -------
 
   entryForm.addEventListener("submit", function(e) {
     e.preventDefault();
@@ -1247,16 +1194,9 @@
     manualRates = {};
     renderManualRateList();
 
-    fetchAutoRates();
     recomputeSummary();
     saveState();
   });
-
-  rateModeRadios.forEach(r => r.addEventListener("change", () => {
-    updateRateModeUI();
-    recomputeSummary();
-    saveState();
-  }));
 
   addManualRateBtn.addEventListener("click", () => {
     const cur = (manualCurrencyInput.value || "").trim();
@@ -1341,7 +1281,7 @@
           currency: cols[idxCurrency],
           source: "导入"
         };
-        addRecord(rec); // 导入的不带 groupId
+        addRecord(rec);
       }
 
       renderTable();
@@ -1359,14 +1299,11 @@
     });
   }
 
-  // ------- 初始化 -------
   syncCategoryForAccountType();
   loadState();
   renderManualRateList();
-  updateRateModeUI();
   renderTable();
   recomputeSummary();
-  fetchAutoRates();
 })();
 </script>
 </body>
