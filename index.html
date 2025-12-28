@@ -2,7 +2,10 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+  >
   <title>复式记账网页程序</title>
   <style>
     :root {
@@ -26,6 +29,12 @@
       box-sizing: border-box;
     }
 
+    html,
+    body {
+      width: 100%;
+      overflow-x: hidden;
+    }
+
     body {
       margin: 0;
       padding: 0;
@@ -40,8 +49,9 @@
 
     .app {
       width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
       min-height: 100dvh;
-      margin: 0;
       background: var(--bg-app);
       border-radius: 0;
       box-shadow: none;
@@ -412,6 +422,11 @@
         padding-left: max(10px, env(safe-area-inset-left));
         border-radius: 0;
         box-shadow: none;
+      }
+
+      /* 关键：在窄屏不要强制 720px，避免整页被缩小 */
+      .table-container table {
+        min-width: 100%;
       }
 
       .app-header {
