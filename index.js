@@ -30,6 +30,12 @@
   const consumeTotalEl = document.getElementById("consumeTotal");
   const summaryMonthEl = document.getElementById("summaryMonth");
 
+  // 新增：专项汇总 DOM
+  const jointAssetTotalEl = document.getElementById("jointAssetTotal"); // 共同资产
+  const depositTotalEl = document.getElementById("depositTotal");       // 存款
+  const creditTotalEl = document.getElementById("creditTotal");         // 信用额（日信+中信）
+  const cashTotalEl = document.getElementById("cashTotal");             // 现金额
+
   const baseCurrencyInput = document.getElementById("baseCurrency");
   const baseCurrencyLabel = document.getElementById("baseCurrencyLabel");
   const baseCurrencyInline = document.getElementById("baseCurrencyInline");
@@ -53,6 +59,13 @@
   function todayStr() {
     const d = new Date();
     return d.toISOString().slice(0, 10);
+  }
+
+  // 统一设置筛选日期为今天（优化重复代码）
+  function setFilterDatesToToday() {
+    const t = todayStr();
+    if (filterStartDateEl) filterStartDateEl.value = t;
+    if (filterEndDateEl) filterEndDateEl.value = t;
   }
 
   // 金额显示格式：千分位，不强制两位小数
@@ -196,6 +209,13 @@
     let budgetTotalBase = 0;
     let netTotalBase = 0;
     let consumeTotalBase = 0;
+
+    // 新增专项汇总
+    let jointAssetBase = 0; // 共同资产
+    let depositBase = 0;    // 存款
+    let creditBase = 0;     // 信用额（日信+中信）
+    let cashBase = 0;       // 现金额
+
     const base = baseCurrencyInput.value || "JPY";
     const monthFilter = summaryMonthEl?.value || null;
 
@@ -204,6 +224,7 @@
 
       const rate = getRateToBase(rec.currency || base);
 
+      // 消费额统计（正值累加）
       if (rec.accountType === "消费") {
         consumeTotalBase += rec.amount * rate;
         return;
@@ -212,15 +233,52 @@
       const signed = getSignedAmount(rec);
       const inBase = signed * rate;
 
+      // 预算
       if (rec.accountType === "预算") {
         budgetTotalBase += inBase;
       }
+
+      // 总资产（除消费外其他账户）
       netTotalBase += inBase;
+
+      // 共同资产
+      if (rec.accountType === "共同资产") {
+        jointAssetBase += inBase;
+      }
+
+      // 存款
+      if (rec.accountType === "存款") {
+        depositBase += inBase;
+      }
+
+      // 信用额（日信 + 中信）
+      if (rec.accountType === "日信" || rec.accountType === "中信") {
+        creditBase += inBase;
+      }
+
+      // 现金额
+      if (rec.accountType === "现金") {
+        cashBase += inBase;
+      }
     });
 
     budgetTotalEl.textContent = budgetTotalBase.toFixed(2) + " " + base;
     netTotalEl.textContent = netTotalBase.toFixed(2) + " " + base;
     consumeTotalEl.textContent = consumeTotalBase.toFixed(2) + " " + base;
+
+    if (jointAssetTotalEl) {
+      jointAssetTotalEl.textContent = jointAssetBase.toFixed(2) + " " + base;
+    }
+    if (depositTotalEl) {
+      depositTotalEl.textContent = depositBase.toFixed(2) + " " + base;
+    }
+    if (creditTotalEl) {
+      creditTotalEl.textContent = creditBase.toFixed(2) + " " + base;
+    }
+    if (cashTotalEl) {
+      cashTotalEl.textContent = cashBase.toFixed(2) + " " + base;
+    }
+
     updateBaseCurrencyUI();
   }
 
@@ -306,14 +364,14 @@
       tdOps.appendChild(delBtn);
       tr.appendChild(tdOps);
 
-      // 其他列
+      // 其他列（顺序：分类 / 账户类型 / 金额 / 备注 / 货币 / 记账时间 / 发生时间 / 来源）
       addCell(tr, rec.category);
       addCell(tr, rec.accountType);
-      addCell(tr, formatAmount(rec.amount)); // 金额显示：千分位，不强制两位小数
-      addCell(tr, rec.currency || "");
+      addCell(tr, formatAmount(rec.amount)); // 金额（第 4 列）
+      addCell(tr, rec.note || "");          // 备注
+      addCell(tr, rec.currency || "");      // 货币
       addCell(tr, rec.recordDate || "");
       addCell(tr, rec.occurDate || "");
-      addCell(tr, rec.note || "");
 
       const srcTd = addCell(tr, rec.source || "");
       if (rec.source?.startsWith("自动")) {
@@ -467,11 +525,7 @@
   }
 
   // 筛选时间默认是“今天”
-  (function initFilterDates() {
-    const t = todayStr();
-    if (filterStartDateEl) filterStartDateEl.value = t;
-    if (filterEndDateEl) filterEndDateEl.value = t;
-  })();
+  setFilterDatesToToday();
 
   accountTypeEl.addEventListener("change", syncCategoryForAccountType);
 
@@ -581,7 +635,7 @@
     URL.revokeObjectURL(url);
   });
 
-  // ⭐⭐ 导入：每次覆盖旧记录，避免重复 ⭐⭐
+  // 导入：覆盖旧记录
   importFile.addEventListener("change", () => {
     const file = importFile.files[0];
     if (!file) return;
@@ -657,11 +711,7 @@
     clearFilterBtn.addEventListener("click", () => {
       if (filterCategoryEl) filterCategoryEl.value = "";
       if (filterAccountTypeEl) filterAccountTypeEl.value = "";
-
-      const t = todayStr();
-      if (filterStartDateEl) filterStartDateEl.value = t;
-      if (filterEndDateEl) filterEndDateEl.value = t;
-
+      setFilterDatesToToday();
       renderTable();
     });
   }
