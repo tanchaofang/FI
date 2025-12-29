@@ -15,7 +15,8 @@
   --radius-sm: 6px;
 }
 
-/* 基础重置 */
+/* ===== 基础重置 ===== */
+
 * {
   box-sizing: border-box;
 }
@@ -23,7 +24,7 @@
 html,
 body {
   width: 100%;
-  overflow-x: hidden;
+  overflow-x: hidden; /* 页面本身不横向滚动，避免黑边 */
 }
 
 body {
@@ -106,7 +107,7 @@ h1 {
   box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.35);
 }
 
-/* panel 外层（对应新版 HTML 的 section.panel） */
+/* panel 外层 */
 .panel {
   margin-bottom: 12px;
 }
@@ -144,6 +145,7 @@ legend {
 }
 
 /* 新版 field 结构 */
+
 .field {
   display: inline-flex;
   align-items: center;
@@ -163,7 +165,8 @@ legend {
   color: #111827;
 }
 
-/* 保留 label 兼容老结构（不推荐继续使用） */
+/* 保留 label 兼容老结构 */
+
 label {
   display: inline-flex;
   align-items: center;
@@ -192,6 +195,7 @@ button {
 }
 
 /* 更语义化的 class，用于新版 HTML */
+
 .field-input {
   padding: 4px 8px;
   border-radius: 6px;
@@ -243,6 +247,7 @@ button {
 }
 
 /* focus 态 */
+
 input:focus,
 select:focus,
 .field-input:focus,
@@ -284,7 +289,8 @@ button:active {
   box-shadow: none;
 }
 
-/* 主/次按钮（新版推荐使用 .btn-secondary/.btn-small） */
+/* 主/次按钮 */
+
 .btn-secondary,
 button.secondary {
   background: #e5e7eb;
@@ -316,6 +322,7 @@ button.small:hover {
 }
 
 /* 危险按钮 */
+
 .btn-danger {
   background: #fee2e2;
   color: var(--danger);
@@ -327,7 +334,8 @@ button.small:hover {
   box-shadow: 0 2px 6px rgba(248, 113, 113, 0.7);
 }
 
-/* 文本类：新旧兼容 */
+/* 文本类 */
+
 .text-small,
 .small {
   font-size: 12px;
@@ -377,7 +385,6 @@ button.small:hover {
   border: 1px solid rgba(148, 163, 184, 0.5);
 }
 
-/* 新 BEM 写法 */
 .summary-value--net,
 .summary-value.net {
   background: #ecfdf3;
@@ -424,6 +431,7 @@ button.small:hover {
 }
 
 /* 说明框 */
+
 .hint-box {
   margin-top: 4px;
   padding: 6px 8px;
@@ -436,12 +444,14 @@ button.small:hover {
 }
 
 /* 备注输入 */
+
 .note-input {
   flex: 1;
   min-width: 220px;
 }
 
 /* 表单按钮组 */
+
 .form-actions {
   margin-top: 6px;
   display: flex;
@@ -466,6 +476,8 @@ button.small:hover {
   align-items: flex-start;
 }
 
+/* 通用行内布局 */
+
 .field-inline {
   display: inline-flex;
   align-items: center;
@@ -473,7 +485,32 @@ button.small:hover {
   white-space: nowrap;
 }
 
-/* ===== 表格基础样式 ===== */
+/* ===== 表格基础样式（账单列表） ===== */
+
+.table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.table-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.table-container {
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  /* 不做额外 overflow 限制，让它跟其他 panel 一样缩放 */
+}
 
 table {
   border-collapse: collapse;
@@ -482,13 +519,17 @@ table {
   background: #ffffff;
 }
 
+#recordsTable {
+  width: 100%;
+}
+
 th,
 td {
   border: 1px solid #e5e7eb;
   padding: 6px 6px;
   text-align: left;
   font-size: 12px;
-  white-space: nowrap;
+  white-space: nowrap; /* 默认桌面保持一行 */
 }
 
 th {
@@ -508,55 +549,12 @@ tbody tr:hover {
 /* 金额列右对齐 + 等宽字体 */
 td:nth-child(4) {
   text-align: right;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
-
-/* 横向滚动容器 */
-.table-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.table-toolbar-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
 }
 
 .hidden {
   display: none;
-}
-
-/* 外层容器：允许横向滚动 */
-.table-container {
-  width: 100%;
-  margin-top: 8px;
-
-  padding: 6px;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* 默认：桌面宽度下表格铺满容器 */
-#recordsTable {
-  width: 100%;
-}
-
-/* 小于等于 900px 宽时，让表格至少 900px 宽，强制可以左右滑动 */
-@media (max-width: 900px) {
-  #recordsTable {
-    width: auto;
-    min-width: 900px;
-  }
 }
 
 /* ===== 窄屏优化 ===== */
@@ -608,6 +606,7 @@ td:nth-child(4) {
     font-size: 12px;
   }
 
+  /* 工具条改为竖排，防止撑宽 */
   .table-toolbar {
     flex-direction: column;
     align-items: flex-start;
@@ -616,7 +615,36 @@ td:nth-child(4) {
 
   .table-toolbar-right {
     width: 100%;
-    justify-content: flex-start;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  /* 账单列表里所有控件单独占一行，可换行 */
+  .field-inline {
+    white-space: normal;
+    width: 100%;
+  }
+
+  /* 表格在窄屏允许换行，整体一起缩小，不被切割 */
+  .table-container {
+    padding: 4px;
+  }
+
+  #recordsTable {
+    width: 100%;
+  }
+
+  th,
+  td {
+    white-space: normal;     /* 允许多行展示 */
+    word-break: break-all;   /* 数字/英文也可以断行 */
+    padding: 4px 2px;
+  }
+
+  /* 文件选择框适配小屏 */
+  input[type="file"] {
+    max-width: 100%;
   }
 
   button {
@@ -628,12 +656,6 @@ td:nth-child(4) {
   button.small {
     padding: 2px 8px;
     font-size: 10px;
-  }
-
-  th,
-  td {
-    padding: 4px 4px;
-    font-size: 11px;
   }
 }
 

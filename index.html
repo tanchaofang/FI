@@ -203,82 +203,89 @@
         </section>
       </section>
 
-      <!-- 账单列表 -->
-      <section class="panel">
-        <fieldset>
-          <legend>账单列表</legend>
+<!-- 账单列表 -->
+<section class="panel">
+  <fieldset>
+    <legend>账单列表</legend>
 
-          <div class="table-toolbar">
-            <p class="text-small">
-              当前统计仅按发生时间过滤；导出 CSV 将导出所有记录（不受月份筛选影响）。
-            </p>
-            <div class="table-toolbar-right">
-              <!-- 筛选控件 -->
-              <label class="text-small field-inline">
-                <span class="field-label">分类：</span>
-                <select id="filterCategory" class="field-select field-select--sm">
-                  <option value="">全部</option>
-                  <option value="出">出</option>
-                  <option value="入">入</option>
-                </select>
-              </label>
+    <div class="table-toolbar">
+      <p class="text-small">
+        当前统计仅按发生时间过滤；导出 CSV 将导出所有记录（不受月份筛选影响）。
+      </p>
 
-              <label class="text-small field-inline">
-                <span class="field-label">账户类型：</span>
-                <select id="filterAccountType" class="field-select field-select--sm">
-                  <option value="">全部</option>
-                  <option value="消费">消费</option>
-                  <option value="现金">现金</option>
-                  <option value="共同资产">共同资产</option>
-                  <option value="存款">存款</option>
-                  <option value="预算">预算</option>
-                  <option value="日信">日信</option>
-                  <option value="中信">中信</option>
-                </select>
-              </label>
+      <div class="table-toolbar-right">
+        <!-- 筛选控件 -->
+        <label class="text-small field-inline">
+          <span class="field-label">分类：</span>
+          <select id="filterCategory" class="field-select field-select--sm">
+            <option value="">全部</option>
+            <option value="出">出</option>
+            <option value="入">入</option>
+          </select>
+        </label>
 
-              <label class="text-small field-inline">
-                <span class="field-label">时间：</span>
-                <input type="date" id="filterStartDate" class="field-input field-input--sm">
-                <span>至</span>
-                <input type="date" id="filterEndDate" class="field-input field-input--sm">
-              </label>
+        <label class="text-small field-inline">
+          <span class="field-label">账户类型：</span>
+          <select id="filterAccountType" class="field-select field-select--sm">
+            <option value="">全部</option>
+            <option value="消费">消费</option>
+            <option value="现金">现金</option>
+            <option value="共同资产">共同资产</option>
+            <option value="存款">存款</option>
+            <option value="预算">预算</option>
+            <option value="日信">日信</option>
+            <option value="中信">中信</option>
+          </select>
+        </label>
 
-              <button type="button"
-                      id="clearFilterBtn"
-                      class="btn-secondary btn-small">
-                重置筛选
-              </button>
+        <label class="text-small field-inline">
+          <span class="field-label">时间：</span>
+          <input type="date" id="filterStartDate" class="field-input field-input--sm">
+          <span>至</span>
+          <input type="date" id="filterEndDate" class="field-input field-input--sm">
+        </label>
 
-              <!-- 导出 / 导入 -->
-              <button type="button" id="exportBtn" class="btn-small">导出当前账单为 CSV</button>
-              <label class="text-small field-inline">
-                <span class="field-label">导入 CSV：</span>
-                <input type="file" id="importFile" accept=".csv,text/csv">
-              </label>
-            </div>
-          </div>
+        <button type="button"
+                id="clearFilterBtn"
+                class="btn-secondary btn-small">
+          重置筛选
+        </button>
 
-          <div class="table-container">
-            <table id="recordsTable">
-              <thead>
-                <tr>
-                  <th style="min-width:90px;">操作</th>
-                  <th>分类</th>
-                  <th>账户类型</th>
-                  <th>金额</th>
-                  <th>货币</th>
-                  <th>记账时间</th>
-                  <th>发生时间</th>
-                  <th>备注</th>
-                  <th>来源</th>
-                </tr>
-              </thead>
-              <tbody id="recordsTbody"></tbody>
-            </table>
-          </div>
-        </fieldset>
-      </section>
+        <button type="button"
+                id="exportBtn"
+                class="btn-small">
+          导出当前账单为 CSV
+        </button>
+
+        <label class="text-small field-inline">
+          <span class="field-label">导入 CSV：</span>
+          <input type="file" id="importFile" accept=".csv,text/csv">
+        </label>
+      </div>
+    </div>
+
+    <!-- 只在这一块里横向滚动 -->
+    <div class="table-container">
+      <table id="recordsTable">
+        <thead>
+          <tr>
+            <th style="min-width:90px;">操作</th>
+            <th>分类</th>
+            <th>账户类型</th>
+            <th>金额</th>
+            <th>货币</th>
+            <th>记账时间</th>
+            <th>发生时间</th>
+            <th>备注</th>
+            <th>来源</th>
+          </tr>
+        </thead>
+        <tbody id="recordsTbody"></tbody>
+      </table>
+    </div>
+  </fieldset>
+</section>
+
     </main>
   </div>
 
