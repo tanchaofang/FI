@@ -364,7 +364,7 @@
       addRecord(expenseRec, groupId);
     }
 
-    // 信用卡还款记录
+    // 信用卡还款记录：次月27日 出 现金 / 入 日信/中信
     if (
       baseRec.category === "出" &&
       (baseRec.accountType === "日信" || baseRec.accountType === "中信")
@@ -379,7 +379,8 @@
       const repaymentDate = new Date(nextYear, nextMonth, 27);
       const dateStr = repaymentDate.toISOString().slice(0, 10);
 
-      const note = baseRec.note + "（信用卡还款）";
+      const note =
+        (baseRec.note ? baseRec.note + " " : "") + "（信用卡还款）";
 
       const cashOut = {
         category: "出",
@@ -580,6 +581,7 @@
     URL.revokeObjectURL(url);
   });
 
+  // ⭐⭐ 导入：每次覆盖旧记录，避免重复 ⭐⭐
   importFile.addEventListener("change", () => {
     const file = importFile.files[0];
     if (!file) return;
@@ -589,6 +591,11 @@
       if (!text) return;
       const lines = text.split(/\r?\n/).filter(Boolean);
       if (lines.length <= 1) return;
+
+      // 覆盖导入：清空之前的记录和自增 id
+      records = [];
+      nextId = 1;
+      nextGroupId = 1;
 
       const header = lines[0].split(",");
       const idx = (name) => header.indexOf(name);
