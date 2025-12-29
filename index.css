@@ -1,0 +1,554 @@
+    :root {
+      --bg-body: #0f172a;
+      --bg-app: #f9fafb;
+      --bg-card: #ffffff;
+      --bg-card-soft: #f3f4f6;
+      --border-subtle: #e5e7eb;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --accent: #3b82f6;
+      --accent-soft: #dbeafe;
+      --danger: #ef4444;
+      --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.18);
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100dvh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, #1e293b 0, #020617 60%),
+        radial-gradient(circle at bottom right, #0f766e 0, #020617 55%);
+      color: var(--text-main);
+      -webkit-text-size-adjust: 100%;
+    }
+
+    .app {
+  width: 100%;
+  max-width: none;        /* 不再限制最大宽度 */
+  margin: 0;              /* 去掉居中 */
+  min-height: 100dvh;
+  background: var(--bg-app);
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+
+  padding-top: calc(18px + env(safe-area-inset-top));
+  padding-right: max(32px, env(safe-area-inset-right));
+  padding-bottom: calc(28px + env(safe-area-inset-bottom));
+  padding-left: max(32px, env(safe-area-inset-left));
+    }
+
+    .app-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 6px;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .app-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    h1 {
+      font-size: 19px;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: 0.02em;
+      color: #020617;
+    }
+
+    .app-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #0f172a;
+      color: #e5e7eb;
+      font-size: 11px;
+      font-weight: 500;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.45);
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.35);
+    }
+
+    .layout-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 2.1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .layout-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    fieldset {
+      margin: 0 0 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+      padding: 10px 12px 12px;
+    }
+
+    legend {
+      padding: 0 6px;
+      font-weight: 600;
+      font-size: 13px;
+      color: #111827;
+    }
+
+    label {
+      display: inline-flex;
+      align-items: center;
+      margin: 4px 6px 4px 0;
+      font-size: 12px;
+      color: #111827;
+      white-space: nowrap;
+    }
+
+    label span {
+      margin-right: 4px;
+    }
+
+    input,
+    select,
+    button {
+      padding: 4px 8px;
+      margin: 2px 4px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-size: 12px;
+      font-family: inherit;
+      background-color: #ffffff;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.4);
+    }
+
+    input[type="date"],
+    input[type="month"] {
+      padding-inline-end: 2px;
+    }
+
+    button {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.06s ease, box-shadow 0.06s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-weight: 500;
+      -webkit-appearance: none;
+    }
+
+    button:hover {
+      background: #2563eb;
+      transform: translateY(-0.5px);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+      border: 1px solid #d1d5db;
+    }
+
+    button.secondary:hover {
+      background: #d1d5db;
+      box-shadow: 0 3px 8px rgba(148, 163, 184, 0.4);
+    }
+
+    button.small {
+      padding: 2px 8px;
+      font-size: 11px;
+      background: #f3f4f6;
+      color: #111827;
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      box-shadow: none;
+    }
+
+    button.small:hover {
+      background: #e5e7eb;
+      box-shadow: 0 2px 4px rgba(148, 163, 184, 0.6);
+    }
+
+    .btn-danger {
+      background: #fee2e2;
+      color: var(--danger);
+      border: 1px solid #fecaca;
+    }
+
+    .btn-danger:hover {
+      background: #fecaca;
+      box-shadow: 0 2px 6px rgba(248, 113, 113, 0.7);
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .auto {
+      color: #2563eb;
+      font-size: 11px;
+    }
+
+    .summary {
+      background: linear-gradient(to right, #eef2ff, #e0f2fe);
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      border: 1px solid #d1d5db;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      align-items: center;
+    }
+
+    .summary-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #0f172a;
+    }
+
+    .summary-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .summary-value {
+      font-size: 14px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+    }
+
+    .summary-value.net {
+      background: #ecfdf3;
+      border-color: #bbf7d0;
+      color: #166534;
+    }
+
+    .summary-value.budget {
+      background: #fefce8;
+      border-color: #facc15;
+      color: #854d0e;
+    }
+
+    .summary-value.base {
+      background: #eff6ff;
+      border-color: #93c5fd;
+      color: #1d4ed8;
+      font-size: 12px;
+    }
+
+    .summary-value.consume {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #b91c1c;
+    }
+
+    .section-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 12px;
+      margin-bottom: 4px;
+    }
+
+    .section-column {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hint-box {
+      margin-top: 4px;
+      padding: 6px 8px;
+      background: #f9fafb;
+      border-radius: var(--radius-sm);
+      border: 1px dashed #d1d5db;
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .note-input {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .form-actions {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    /* --- 手动汇率区域 --- */
+    .section-manual-rates {
+      margin-top: 8px;
+      gap: 8px;
+    }
+
+    .section-manual-rates-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .manual-rate-row {
+      align-items: flex-start;
+    }
+
+    .field-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .field-label {
+      font-size: 12px;
+      color: #111827;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 8px;
+      background: #ffffff;
+    }
+
+    th,
+    td {
+      border: 1px solid #e5e7eb;
+      padding: 6px 6px;
+      text-align: left;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #f3f4f6;
+      font-weight: 600;
+      color: #4b5563;
+    }
+
+    tbody tr:nth-child(odd) {
+      background-color: #f9fafb;
+    }
+
+    tbody tr:hover {
+      background-color: #e5f0ff;
+    }
+
+    td:nth-child(4) {
+      text-align: right;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .table-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .table-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .table-container table {
+      min-width: 720px;
+    }
+
+    /* iPhone 等窄屏优化：<= 600px */
+    @media (max-width: 600px) {
+      .app {
+        padding-top: calc(10px + env(safe-area-inset-top));
+        padding-right: max(10px, env(safe-area-inset-right));
+        padding-bottom: calc(18px + env(safe-area-inset-bottom));
+        padding-left: max(10px, env(safe-area-inset-left));
+        border-radius: 0;
+        box-shadow: none;
+      }
+
+      .table-container table {
+        min-width: 100%;
+      }
+
+      .section-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .section-row label {
+        width: 100%;
+      }
+
+      input,
+      select {
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .note-input {
+        min-width: 0;
+      }
+
+      .summary {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .summary-item {
+        font-size: 12px;
+      }
+
+      .summary-value {
+        font-size: 12px;
+      }
+
+      .table-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .table-toolbar-right {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      button {
+        padding: 5px 10px;
+        font-size: 11px;
+      }
+
+      button.small {
+        padding: 2px 8px;
+        font-size: 10px;
+      }
+
+      th,
+      td {
+        padding: 4px 4px;
+        font-size: 11px;
+      }
+
+      /* 手动汇率：手机上拆成上下布局，避免文字竖排 */
+      .manual-rate-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .field-inline {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .field-inline select,
+      .field-inline input {
+        flex: 1 1 auto;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .badge {
+        display: none;
+      }
+
+      h1 {
+        font-size: 16px;
+      }
+
+      .summary {
+        padding: 8px 10px;
+      }
+    }
+
+    @media screen and (width: 393px) and (height: 852px) and (-webkit-device-pixel-ratio: 3) {
+      .app {
+        padding-top: calc(12px + env(safe-area-inset-top));
+        padding-bottom: calc(20px + env(safe-area-inset-bottom));
+      }
+
+      h1 {
+        font-size: 18px;
+      }
+
+      .summary {
+        gap: 8px;
+      }
+    }
