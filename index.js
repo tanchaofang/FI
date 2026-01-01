@@ -60,9 +60,27 @@
 
   // ================= 工具函数 =================
 
+  // 默认时区：跟随用户当前设备/网络所在地(浏览器时区)
+  function getLocalTimeZone() {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    } catch (e) {
+      return "UTC";
+    }
+  }
+
+  // 本地日期字符串：YYYY-MM-DD（避免 toISOString() 的 UTC 偏移）
   function todayStr() {
     const d = new Date();
-    return d.toISOString().slice(0, 10);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  // 解析 YYYY-MM-DD 为“本地时区”的 Date（避免 new Date('YYYY-MM-DD') 的 UTC 解析差异）
+  function parseLocalYMD(ymd) {
+    return new Date(`${ymd}T00:00:00`);
   }
 
   // 统一设置筛选日期为今天（优化重复代码）
@@ -438,15 +456,22 @@
 
     // 信用还款记录：次月27日 出 现金 / 入 信用
     if (baseRec.category === "出" && baseRec.accountType === "信用") {
-      const occur = new Date(
-        baseRec.occurDate || baseRec.recordDate || todayStr()
-      );
+      const occurStr = baseRec.occurDate || baseRec.recordDate || todayStr();
+      const occur = parseLocalYMD(occurStr);
+
       const year = occur.getFullYear();
       const month = occur.getMonth();
       const nextMonth = (month + 1) % 12;
       const nextYear = year + (nextMonth === 0 ? 1 : 0);
       const repaymentDate = new Date(nextYear, nextMonth, 27);
-      const dateStr = repaymentDate.toISOString().slice(0, 10);
+
+      // 生成本地 YYYY-MM-DD（避免 toISOString()）
+      const dateStr = (() => {
+        const y = repaymentDate.getFullYear();
+        const m = String(repaymentDate.getMonth() + 1).padStart(2, "0");
+        const d = String(repaymentDate.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+      })();
 
       const note =
         (baseRec.note ? baseRec.note + " " : "") + "（信用还款）";
