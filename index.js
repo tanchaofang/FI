@@ -4,14 +4,18 @@
   let nextId = 1;
   let nextGroupId = 1;
   let manualRates = {};
+  let lastExportName = "";
 
   const LS_KEY_RECORDS = "de_records";
   const LS_KEY_NEXT_ID = "de_nextId";
   const LS_KEY_BASE = "de_baseCurrency";
   const LS_KEY_MANUAL = "de_manualRates";
   const LS_KEY_GROUP = "de_nextGroupId";
+  const LS_KEY_SUMMARY_START = "de_summaryStartDate";
+  const LS_KEY_SUMMARY_END = "de_summaryEndDate";
+  const LS_KEY_EXPORT_NAME = "de_lastExportName";
 
-  const accountTypesForExpenseMirror = ["现金", "共同资产", "存款", "日信", "中信"];
+  const accountTypesForExpenseMirror = ["现金", "信用"];
 
   // ================= DOM 引用 =================
   const entryForm = document.getElementById("entryForm");
@@ -28,13 +32,13 @@
   const budgetTotalEl = document.getElementById("budgetTotal");
   const netTotalEl = document.getElementById("netTotal");
   const consumeTotalEl = document.getElementById("consumeTotal");
-  const summaryMonthEl = document.getElementById("summaryMonth");
+  const summaryStartDateEl = document.getElementById("summaryStartDate");
+  const summaryEndDateEl = document.getElementById("summaryEndDate");
 
-  // 新增：专项汇总 DOM
-  const jointAssetTotalEl = document.getElementById("jointAssetTotal"); // 共同资产
-  const depositTotalEl = document.getElementById("depositTotal");       // 存款
-  const creditTotalEl = document.getElementById("creditTotal");         // 信用额（日信+中信）
-  const cashTotalEl = document.getElementById("cashTotal");             // 现金额
+  // 专项汇总 DOM
+  const creditTotalEl = document.getElementById("creditTotal");         // 信用
+  const creditHintEl = document.getElementById("creditHint");          // 信用提示
+  const cashTotalEl = document.getElementById("cashTotal");             // 现金
 
   const baseCurrencyInput = document.getElementById("baseCurrency");
   const baseCurrencyLabel = document.getElementById("baseCurrencyLabel");
@@ -107,6 +111,9 @@
       localStorage.setItem(LS_KEY_BASE, baseCurrencyInput.value || "JPY");
       localStorage.setItem(LS_KEY_MANUAL, JSON.stringify(manualRates || {}));
       localStorage.setItem(LS_KEY_GROUP, String(nextGroupId));
+      localStorage.setItem(LS_KEY_SUMMARY_START, summaryStartDateEl?.value || "");
+      localStorage.setItem(LS_KEY_SUMMARY_END, summaryEndDateEl?.value || "");
+      localStorage.setItem(LS_KEY_EXPORT_NAME, lastExportName || "");
     } catch (e) {
       console.log("保存到 localStorage 失败：", e);
     }
@@ -171,6 +178,15 @@
       });
       nextGroupId = maxGroup + 1;
     }
+
+    // 统计区间
+    const savedStart = localStorage.getItem(LS_KEY_SUMMARY_START) || "";
+    const savedEnd = localStorage.getItem(LS_KEY_SUMMARY_END) || "";
+    if (summaryStartDateEl) summaryStartDateEl.value = savedStart;
+    if (summaryEndDateEl) summaryEndDateEl.value = savedEnd;
+
+    // 上次导入的导出文件名
+    lastExportName = localStorage.getItem(LS_KEY_EXPORT_NAME) || "";
   }
 
   function getRateToBase(currency) {
@@ -191,18 +207,22 @@
   }
 
   function getSignedAmount(rec) {
-    if (rec.accountType === "消费") {
+    if (rec.accountType === "消费额") {
       return 0;
     }
     const sign = rec.category === "入" ? 1 : -1;
     return sign * rec.amount;
   }
 
-  function inSummaryMonth(rec, monthFilter) {
-    if (!monthFilter) return true;
+  function inSummaryRange(rec, startDate, endDate) {
+    // startDate / endDate are "YYYY-MM-DD" or empty
+    if (!startDate && !endDate) return true;
     const d = rec.occurDate || rec.recordDate;
     if (!d) return false;
-    return d.slice(0, 7) === monthFilter;
+
+    if (startDate && d < startDate) return false;
+    if (endDate && d > endDate) return false;
+    return true;
   }
 
   function recomputeSummary() {
@@ -210,22 +230,20 @@
     let netTotalBase = 0;
     let consumeTotalBase = 0;
 
-    // 新增专项汇总
-    let jointAssetBase = 0; // 共同资产
-    let depositBase = 0;    // 存款
-    let creditBase = 0;     // 信用额（日信+中信）
-    let cashBase = 0;       // 现金额
+    let creditBase = 0; // 信用
+    let cashBase = 0;   // 现金
 
     const base = baseCurrencyInput.value || "JPY";
-    const monthFilter = summaryMonthEl?.value || null;
+    const startDate = summaryStartDateEl?.value || "";
+    const endDate = summaryEndDateEl?.value || "";
 
     records.forEach((rec) => {
-      if (!inSummaryMonth(rec, monthFilter)) return;
+      if (!inSummaryRange(rec, startDate, endDate)) return;
 
       const rate = getRateToBase(rec.currency || base);
 
       // 消费额统计（正值累加）
-      if (rec.accountType === "消费") {
+      if (rec.accountType === "消费额") {
         consumeTotalBase += rec.amount * rate;
         return;
       }
@@ -238,27 +256,24 @@
         budgetTotalBase += inBase;
       }
 
-      // 总资产（除消费外其他账户）
-      netTotalBase += inBase;
-
-      // 共同资产
-      if (rec.accountType === "共同资产") {
-        jointAssetBase += inBase;
-      }
-
-      // 存款
-      if (rec.accountType === "存款") {
-        depositBase += inBase;
-      }
-
-      // 信用额（日信 + 中信）
-      if (rec.accountType === "日信" || rec.accountType === "中信") {
+      // 信用
+      if (rec.accountType === "信用") {
         creditBase += inBase;
       }
 
-      // 现金额
+      // 现金
       if (rec.accountType === "现金") {
         cashBase += inBase;
+      }
+
+      // 总资产：默认包含除“消费额”外全部账户
+      // 但“信用”为正时不计入总资产；仅当“信用”为负时计入
+      if (rec.accountType === "信用") {
+        if (inBase < 0) {
+          netTotalBase += inBase;
+        }
+      } else {
+        netTotalBase += inBase;
       }
     });
 
@@ -266,17 +281,16 @@
     netTotalEl.textContent = netTotalBase.toFixed(2) + " " + base;
     consumeTotalEl.textContent = consumeTotalBase.toFixed(2) + " " + base;
 
-    if (jointAssetTotalEl) {
-      jointAssetTotalEl.textContent = jointAssetBase.toFixed(2) + " " + base;
-    }
-    if (depositTotalEl) {
-      depositTotalEl.textContent = depositBase.toFixed(2) + " " + base;
-    }
     if (creditTotalEl) {
       creditTotalEl.textContent = creditBase.toFixed(2) + " " + base;
     }
     if (cashTotalEl) {
       cashTotalEl.textContent = cashBase.toFixed(2) + " " + base;
+    }
+
+    if (creditHintEl) {
+      creditHintEl.textContent =
+        creditBase > 0 ? "未纳入总资产" : "";
     }
 
     updateBaseCurrencyUI();
@@ -328,9 +342,9 @@
       });
     }
 
-    // 按 id 倒序，只显示最近 10 条
+    // 按 id 倒序，显示所有符合条件的记录
     displayList.sort((a, b) => b.id - a.id);
-    return displayList.slice(0, 10);
+    return displayList;
   }
 
   function renderTable() {
@@ -404,14 +418,14 @@
     };
     addRecord(baseRec, groupId);
 
-    // 自动“消费 入”记录
+    // 自动“消费额 入”记录
     if (
       baseRec.category === "出" &&
       accountTypesForExpenseMirror.includes(baseRec.accountType)
     ) {
       const expenseRec = {
         category: "入",
-        accountType: "消费",
+        accountType: "消费额",
         amount: baseRec.amount,
         currency: baseRec.currency,
         recordDate: baseRec.recordDate,
@@ -422,11 +436,8 @@
       addRecord(expenseRec, groupId);
     }
 
-    // 信用卡还款记录：次月27日 出 现金 / 入 日信/中信
-    if (
-      baseRec.category === "出" &&
-      (baseRec.accountType === "日信" || baseRec.accountType === "中信")
-    ) {
+    // 信用还款记录：次月27日 出 现金 / 入 信用
+    if (baseRec.category === "出" && baseRec.accountType === "信用") {
       const occur = new Date(
         baseRec.occurDate || baseRec.recordDate || todayStr()
       );
@@ -438,7 +449,7 @@
       const dateStr = repaymentDate.toISOString().slice(0, 10);
 
       const note =
-        (baseRec.note ? baseRec.note + " " : "") + "（信用卡还款）";
+        (baseRec.note ? baseRec.note + " " : "") + "（信用还款）";
 
       const cashOut = {
         category: "出",
@@ -448,30 +459,30 @@
         recordDate: dateStr,
         occurDate: dateStr,
         note,
-        source: "自动:信用卡还款",
+        source: "自动:信用还款",
       };
-      const cardIn = {
+      const creditIn = {
         category: "入",
-        accountType: baseRec.accountType,
+        accountType: "信用",
         amount: baseRec.amount,
         currency: baseRec.currency,
         recordDate: dateStr,
         occurDate: dateStr,
         note,
-        source: "自动:信用卡还款",
+        source: "自动:信用还款",
       };
 
       addRecord(cashOut, groupId);
-      addRecord(cardIn, groupId);
+      addRecord(creditIn, groupId);
     }
   }
 
   function syncCategoryForAccountType() {
     const acc = accountTypeEl.value;
-    if (acc === "消费") {
+    if (acc === "消费额") {
       categoryEl.value = "入";
       categoryEl.disabled = true;
-    } else if (acc === "日信" || acc === "中信") {
+    } else if (acc === "信用") {
       categoryEl.value = "出";
       categoryEl.disabled = true;
     } else {
@@ -517,12 +528,9 @@
 
   // ================= 事件绑定 =================
 
-  // 初始化日期
+  // 初始化日期（表单默认今天；统计区间默认空）
   recordDateEl.value = todayStr();
   occurDateEl.value = todayStr();
-  if (summaryMonthEl) {
-    summaryMonthEl.value = todayStr().slice(0, 7);
-  }
 
   // 筛选时间默认是“今天”
   setFilterDatesToToday();
@@ -532,12 +540,9 @@
   entryForm.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    // 信用卡只能“出”
-    if (
-      (accountTypeEl.value === "日信" || accountTypeEl.value === "中信") &&
-      categoryEl.value === "入"
-    ) {
-      alert("信用卡（日信/中信）手动录入时只能选择“出”。“入”记录请通过自动转记生成。");
+    // 信用只能“出”
+    if (accountTypeEl.value === "信用" && categoryEl.value === "入") {
+      alert("信用手动录入时只能选择“出”。“入”记录请通过自动转记生成。");
       return;
     }
 
@@ -608,7 +613,7 @@
     ];
     const lines = [header.join(",")];
 
-    // 导出所有记录，不受筛选与“只显示10条”影响
+    // 导出所有记录，不受筛选影响
     records.forEach((rec) => {
       const row = [
         rec.category,
@@ -628,7 +633,10 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "records.csv";
+
+    const name = (lastExportName || "Fi-all.csv").trim() || "Fi-all.csv";
+    a.download = name.toLowerCase().endsWith(".csv") ? name : name + ".csv";
+
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -638,7 +646,11 @@
   // 导入：覆盖旧记录
   importFile.addEventListener("change", () => {
     const file = importFile.files[0];
+    if (file && file.name) {
+      lastExportName = file.name;
+    }
     if (!file) return;
+
     const reader = new FileReader();
     reader.onload = function (evt) {
       const text = evt.target.result;
@@ -687,8 +699,15 @@
     reader.readAsText(file, "utf-8");
   });
 
-  if (summaryMonthEl) {
-    summaryMonthEl.addEventListener("input", () => {
+  // 统计区间事件绑定
+  if (summaryStartDateEl) {
+    summaryStartDateEl.addEventListener("change", () => {
+      recomputeSummary();
+      saveState();
+    });
+  }
+  if (summaryEndDateEl) {
+    summaryEndDateEl.addEventListener("change", () => {
       recomputeSummary();
       saveState();
     });

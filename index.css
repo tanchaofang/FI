@@ -414,36 +414,19 @@ button.small:hover {
   color: #b91c1c;
 }
 
-/* 新增四个汇总项的颜色 */
-
-.summary-value--joint {
-  /* 共同资产：偏绿色 */
-  background: #ffffff;
-  border-color: #000000;
-  color: #020202;
-}
-
-.summary-value--deposit {
-  /* 存款：偏蓝色 */
-  background: #eff6ff;
-  border-color: #93c5fd;
-  color: #1d4ed8;
-}
-
+/* 信用额：偏紫/粉色 */
 .summary-value--credit {
-  /* 信用额：偏紫/粉色 */
   background: #fdf2ff;
   border-color: #e9d5ff;
   color: #7e22ce;
 }
 
+/* 现金额：橙黄色 */
 .summary-value--cash {
-  /* 现金额：橙黄色 */
   background: #fffbeb;
   border-color: #fef3c7;
   color: #92400e;
 }
-
 
 /* ===== 布局辅助 ===== */
 
@@ -718,4 +701,10 @@ td:nth-child(4) {
   .summary {
     gap: 8px;
   }
+}
+
+.summary-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-left: 6px;
 }

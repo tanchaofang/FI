@@ -25,10 +25,10 @@
       <!-- 汇总信息 -->
       <section class="summary" id="summary" aria-label="汇总信息">
         <div class="summary-item">
-          <span class="summary-label">统计月份</span>
-          <input type="month"
-                 id="summaryMonth"
-                 class="input-pill input-month">
+          <span class="summary-label">统计区间</span>
+          <input type="date" id="summaryStartDate" class="input-pill input-month" placeholder="开始日期">
+          <span class="text-small">至</span>
+          <input type="date" id="summaryEndDate" class="input-pill input-month" placeholder="结束日期">
         </div>
 
         <div class="summary-item">
@@ -42,31 +42,18 @@
         </div>
 
         <div class="summary-item">
-          <span class="summary-label">总资产余额</span>
+          <span class="summary-label">总资产</span>
           <span class="summary-value summary-value--net" id="netTotal">0</span>
         </div>
 
-        <!-- 新增：共同资产 -->
         <div class="summary-item">
-          <span class="summary-label">共同资产</span>
-          <span class="summary-value summary-value--joint" id="jointAssetTotal">0</span>
-        </div>
-
-        <!-- 新增：存款 -->
-        <div class="summary-item">
-          <span class="summary-label">存款</span>
-          <span class="summary-value summary-value--deposit" id="depositTotal">0</span>
-        </div>
-
-        <!-- 新增：信用额（日信 + 中信） -->
-        <div class="summary-item">
-          <span class="summary-label">信用额（日信+中信）</span>
+          <span class="summary-label">信用</span>
           <span class="summary-value summary-value--credit" id="creditTotal">0</span>
+          <span class="summary-hint" id="creditHint"></span>
         </div>
 
-        <!-- 新增：现金额 -->
         <div class="summary-item">
-          <span class="summary-label">现金额</span>
+          <span class="summary-label">现金</span>
           <span class="summary-value summary-value--cash" id="cashTotal">0</span>
         </div>
 
@@ -158,13 +145,10 @@
                 <label class="field">
                   <span class="field-label">账户类型：</span>
                   <select id="accountType" class="field-select">
-                    <option value="共同资产">共同资产</option>
-                    <option value="现金">现金</option>
-                    <option value="存款">存款</option>
                     <option value="预算">预算</option>
-                    <option value="日信">日信</option>
-                    <option value="中信">中信</option>
-                    <option value="消费">消费</option>
+                    <option value="消费额">消费额</option>
+                    <option value="现金">现金</option>
+                    <option value="信用">信用</option>
                   </select>
                 </label>
 
@@ -213,9 +197,9 @@
 
               <div class="hint-box">
                 规则说明：<br>
-                1）现金 / 共同资产 / 存款 / 日信 / 中信 的「出」自动生成一条「消费 入」记录；<br>
-                2）日信 / 中信「出」（信用卡消费）时，自动生成次月 27 日的「出 现金 / 入 信用卡」两条还款记录；<br>
-                3）信用卡（日信 / 中信）手动录入时只能选择「出」，「入」需通过自动转记生成。
+                1）现金 / 信用 的「出」自动生成一条「消费额 入」记录；<br>
+                2）信用「出」（信用卡消费）时，自动生成次月 27 日的「出 现金 / 入 信用」两条还款记录；<br>
+                3）信用手动录入时只能选择「出」；消费额只能选择「入」。
               </div>
 
               <div class="form-actions">
@@ -234,7 +218,7 @@
 
           <div class="table-toolbar">
             <p class="text-small">
-              当前统计仅按发生时间过滤；导出 CSV 将导出所有记录（不受月份筛选影响）。
+              当前统计仅按发生时间过滤；导出 CSV 将导出所有记录（不受筛选影响）。
             </p>
 
             <div class="table-toolbar-right">
@@ -252,13 +236,10 @@
                 <span class="field-label">账户类型：</span>
                 <select id="filterAccountType" class="field-select field-select--sm">
                   <option value="">全部</option>
-                  <option value="消费">消费</option>
+                  <option value="消费额">消费额</option>
                   <option value="现金">现金</option>
-                  <option value="共同资产">共同资产</option>
-                  <option value="存款">存款</option>
                   <option value="预算">预算</option>
-                  <option value="日信">日信</option>
-                  <option value="中信">中信</option>
+                  <option value="信用">信用</option>
                 </select>
               </label>
 
@@ -297,7 +278,6 @@
                   <th>分类</th>
                   <th>账户类型</th>
                   <th>金额</th>
-                  <!-- 按要求：备注列移动到金额之后、货币之前 -->
                   <th>备注</th>
                   <th>货币</th>
                   <th>记账时间</th>
