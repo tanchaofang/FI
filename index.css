@@ -16,13 +16,9 @@
 }
 
 /* ===== 基础重置 ===== */
+* { box-sizing: border-box; }
 
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
+html, body {
   width: 100%;
   overflow-x: hidden;
 }
@@ -40,7 +36,6 @@ body {
 }
 
 /* ===== app & 布局 ===== */
-
 .app {
   width: 100%;
   max-width: none;
@@ -67,11 +62,7 @@ body {
   text-align: center;
 }
 
-.app-title-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+.app-title-group { display: flex; flex-direction: column; gap: 4px; }
 
 h1 {
   font-size: 19px;
@@ -81,10 +72,7 @@ h1 {
   color: #020617;
 }
 
-.app-subtitle {
-  font-size: 12px;
-  color: var(--text-muted);
-}
+.app-subtitle { font-size: 12px; color: var(--text-muted); }
 
 .badge {
   display: inline-flex;
@@ -108,26 +96,12 @@ h1 {
 }
 
 /* panel 外层 */
-.panel {
-  margin-bottom: 12px;
-}
+.panel { margin-bottom: 12px; }
 
-/* 双列布局（汇率设置 + 录入表单） */
-.layout-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2.1fr);
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-@media (max-width: 900px) {
-  .layout-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
+/* ✅ 彻底取消左右并列：layout-grid 退化为普通块 */
+.layout-grid { display: block; margin-bottom: 16px; }
 
 /* ===== fieldset & 表单通用样式 ===== */
-
 fieldset {
   margin: 0 0 12px;
   border-radius: var(--radius-md);
@@ -144,29 +118,7 @@ legend {
   color: #111827;
 }
 
-/* 新版 field 结构 */
-
-.field {
-  display: inline-flex;
-  align-items: center;
-  margin: 4px 6px 4px 0;
-  font-size: 12px;
-  color: #111827;
-  white-space: nowrap;
-}
-
-.field--full {
-  width: 100%;
-}
-
-.field-label {
-  margin-right: 4px;
-  font-size: 12px;
-  color: #111827;
-}
-
-/* 保留 label 兼容老结构 */
-
+.field,
 label {
   display: inline-flex;
   align-items: center;
@@ -176,15 +128,16 @@ label {
   white-space: nowrap;
 }
 
+.field--full { width: 100%; }
+
+.field-label,
 label span {
   margin-right: 4px;
+  font-size: 12px;
+  color: #111827;
 }
 
-/* 输入控件基础样式 */
-
-input,
-select,
-button {
+input, select, button {
   padding: 4px 8px;
   margin: 2px 4px;
   border-radius: 6px;
@@ -193,8 +146,6 @@ button {
   font-family: inherit;
   background-color: #ffffff;
 }
-
-/* 更语义化的 class，用于新版 HTML */
 
 .field-input {
   padding: 4px 8px;
@@ -205,18 +156,10 @@ button {
   background-color: #ffffff;
 }
 
-.field-input--amount {
-  width: 110px;
-}
+.field-input--amount { width: 110px; }
+.field-input--rate { width: 90px; }
 
-.field-input--rate {
-  width: 90px;
-}
-
-.field-input--sm {
-  padding: 2px 6px;
-  font-size: 11px;
-}
+.field-input--sm { padding: 2px 6px; font-size: 11px; }
 
 .field-select {
   padding: 4px 8px;
@@ -227,26 +170,11 @@ button {
   background-color: #ffffff;
 }
 
-.field-select--currency {
-  width: 90px;
-}
+.field-select--currency { width: 90px; }
+.field-select--sm { padding: 2px 6px; font-size: 11px; }
 
-.field-select--sm {
-  padding: 2px 6px;
-  font-size: 11px;
-}
-
-/* 圆角的小输入（统计月份） */
-.input-pill {
-  border-radius: 999px;
-}
-
-.input-month {
-  font-size: 12px;
-  padding: 2px 6px;
-}
-
-/* focus 态 */
+.input-pill { border-radius: 999px; }
+.input-month { font-size: 12px; padding: 2px 6px; }
 
 input:focus,
 select:focus,
@@ -257,13 +185,9 @@ select:focus,
   box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.4);
 }
 
-input[type="date"],
-input[type="month"] {
-  padding-inline-end: 2px;
-}
+input[type="date"], input[type="month"] { padding-inline-end: 2px; }
 
 /* ===== 按钮通用样式 ===== */
-
 button {
   background: var(--accent);
   color: #ffffff;
@@ -284,12 +208,7 @@ button:hover {
   box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
 }
 
-button:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
-
-/* 主/次按钮 */
+button:active { transform: translateY(0); box-shadow: none; }
 
 .btn-secondary,
 button.secondary {
@@ -321,8 +240,6 @@ button.small:hover {
   box-shadow: 0 2px 4px rgba(148, 163, 184, 0.6);
 }
 
-/* 危险按钮 */
-
 .btn-danger {
   background: #fee2e2;
   color: var(--danger);
@@ -334,25 +251,12 @@ button.small:hover {
   box-shadow: 0 2px 6px rgba(248, 113, 113, 0.7);
 }
 
-.btn-pill {
-  border-radius: 999px;
-}
+.btn-pill { border-radius: 999px; }
 
-/* 文本类 */
-
-.text-small,
-.small {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.auto {
-  color: #2563eb;
-  font-size: 11px;
-}
+.text-small, .small { font-size: 12px; color: var(--text-muted); }
+.auto { color: #2563eb; font-size: 11px; }
 
 /* ===== 汇总区域 ===== */
-
 .summary {
   position: relative;
   background: linear-gradient(to right, #eef2ff, #e0f2fe);
@@ -376,10 +280,7 @@ button.small:hover {
   color: #0f172a;
 }
 
-.summary-label {
-  font-size: 12px;
-  color: var(--text-muted);
-}
+.summary-label { font-size: 12px; color: var(--text-muted); }
 
 .summary-value {
   font-size: 14px;
@@ -390,52 +291,22 @@ button.small:hover {
   border: 1px solid rgba(148, 163, 184, 0.5);
 }
 
-/* ✅ 总资产默认：股票绿（正数） */
 .summary-value--net {
   background: #ecfdf3;
   border-color: #bbf7d0;
   color: #166534;
 }
-
-/* ✅ 总资产为负数：股票深红 */
 .summary-value--net-negative {
   background: #fef2f2;
   border-color: #fecaca;
   color: #7f1d1d;
 }
 
-.summary-value--budget {
-  background: #fefce8;
-  border-color: #facc15;
-  color: #854d0e;
-}
+.summary-value--budget { background: #fefce8; border-color: #facc15; color: #854d0e; }
+.summary-value--consume { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+.summary-value--credit { background: #fdf2ff; border-color: #e9d5ff; color: #7e22ce; }
+.summary-value--cash { background: #fffbeb; border-color: #fef3c7; color: #92400e; }
 
-.summary-value--base {
-  background: #eff6ff;
-  border-color: #93c5fd;
-  color: #1d4ed8;
-  font-size: 12px;
-}
-
-.summary-value--consume {
-  background: #fef2f2;
-  border-color: #fecaca;
-  color: #b91c1c;
-}
-
-.summary-value--credit {
-  background: #fdf2ff;
-  border-color: #e9d5ff;
-  color: #7e22ce;
-}
-
-.summary-value--cash {
-  background: #fffbeb;
-  border-color: #fef3c7;
-  color: #92400e;
-}
-
-/* ✅ 统计区右下角：导入/导出 */
 .summary-actions {
   position: absolute;
   right: 10px;
@@ -465,38 +336,49 @@ button.small:hover {
   cursor: pointer;
   user-select: none;
 }
+.import-pill:hover { background: #e5e7eb; }
+.import-pill input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.import-pill-text { display: inline-flex; align-items: center; }
 
-.import-pill:hover {
-  background: #e5e7eb;
-}
-
-.import-pill input[type="file"] {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.import-pill-text {
+/* ✅ 统计区新增：当前汇率显示 */
+.summary-note {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px dashed rgba(148, 163, 184, 0.7);
+  background: rgba(255, 255, 255, 0.55);
+  color: #0f172a;
+  line-height: 1.2;
+  max-width: 100%;
+}
+
+.summary-note-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.summary-note-value {
+  font-size: 12px;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 620px;
 }
 
 /* ===== 布局辅助 ===== */
-
 .section-row {
   display: flex;
   flex-wrap: wrap;
-  alignItems: center;
+  align-items: center;
   gap: 6px 12px;
   margin-bottom: 4px;
 }
 
-.section-column {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+.section-column { display: flex; flex-direction: column; gap: 4px; }
 
 .hint-box {
   margin-top: 4px;
@@ -509,31 +391,13 @@ button.small:hover {
   line-height: 1.5;
 }
 
-.note-input {
-  flex: 1;
-  min-width: 220px;
-}
+.note-input { flex: 1; min-width: 220px; }
 
 .form-actions {
   margin-top: 6px;
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-}
-
-.section-manual-rates {
-  margin-top: 8px;
-  gap: 8px;
-}
-
-.section-manual-rates-title {
-  font-size: 12px;
-  font-weight: 600;
-  color: #111827;
-}
-
-.manual-rate-row {
-  align-items: flex-start;
 }
 
 .field-inline {
@@ -543,8 +407,24 @@ button.small:hover {
   white-space: nowrap;
 }
 
-/* ===== 表格 ===== */
+/* ✅ 汇率设置：单行工具条，不换行，超出就横向滚动 */
+.rate-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
 
+.rate-bar > * { flex: 0 0 auto; }
+.rate-bar::-webkit-scrollbar { height: 6px; }
+.rate-bar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 6px; }
+
+/* ===== 表格 ===== */
 .table-toolbar {
   display: flex;
   justify-content: space-between;
@@ -576,12 +456,9 @@ table {
   background: #ffffff;
 }
 
-#recordsTable {
-  width: 100%;
-}
+#recordsTable { width: 100%; }
 
-th,
-td {
+th, td {
   border: 1px solid #e5e7eb;
   padding: 6px 6px;
   text-align: left;
@@ -595,13 +472,8 @@ th {
   color: #4b5563;
 }
 
-tbody tr:nth-child(odd) {
-  background-color: #f9fafb;
-}
-
-tbody tr:hover {
-  background-color: #e5f0ff;
-}
+tbody tr:nth-child(odd) { background-color: #f9fafb; }
+tbody tr:hover { background-color: #e5f0ff; }
 
 td:nth-child(4) {
   text-align: right;
@@ -609,12 +481,9 @@ td:nth-child(4) {
     "Liberation Mono", "Courier New", monospace;
 }
 
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
 /* ===== 窄屏优化 ===== */
-
 @media (max-width: 600px) {
   .app {
     padding-top: calc(10px + env(safe-area-inset-top));
@@ -636,19 +505,14 @@ td:nth-child(4) {
     width: 100%;
   }
 
-  input,
-  select,
-  .field-input,
-  .field-select {
+  input, select, .field-input, .field-select {
     width: 100%;
     max-width: 100%;
   }
 
-  .note-input {
-    min-width: 0;
-  }
+  .note-input { min-width: 0; }
 
-  /* ✅ 统计区竖屏：两列网格 */
+  /* 统计区竖屏：两列网格 */
   .summary {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -663,15 +527,22 @@ td:nth-child(4) {
     gap: 8px;
   }
 
-  .summary-label {
-    min-width: 52px;
-  }
+  .summary-label { min-width: 52px; }
 
   .summary-item--span2 {
     grid-column: 1 / -1;
     justify-content: flex-start;
     flex-wrap: wrap;
     gap: 6px;
+  }
+
+  /* ✅ 当前汇率这一行：占满两列 */
+  .summary-note {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .summary-note-value {
+    max-width: 100%;
   }
 
   .summary-actions {
@@ -681,9 +552,7 @@ td:nth-child(4) {
     padding: 6px 6px;
   }
 
-  .summary-value {
-    font-size: 12px;
-  }
+  .summary-value { font-size: 12px; }
 
   .table-toolbar {
     flex-direction: column;
@@ -698,50 +567,26 @@ td:nth-child(4) {
     gap: 6px;
   }
 
-  .field-inline {
-    white-space: normal;
-    width: 100%;
-  }
+  .field-inline { white-space: normal; width: 100%; }
 
-  .table-container {
-    padding: 4px;
-  }
+  .table-container { padding: 4px; }
+  #recordsTable { width: 100%; }
 
-  #recordsTable {
-    width: 100%;
-  }
-
-  th,
-  td {
+  th, td {
     white-space: normal;
     word-break: break-all;
     padding: 4px 2px;
   }
 
-  button {
-    padding: 5px 10px;
-    font-size: 11px;
-  }
+  button { padding: 5px 10px; font-size: 11px; }
 
-  .btn-small,
-  button.small {
-    padding: 2px 8px;
-    font-size: 10px;
-  }
+  .btn-small, button.small { padding: 2px 8px; font-size: 10px; }
 }
 
 @media (max-width: 360px) {
-  .badge {
-    display: none;
-  }
-
-  h1 {
-    font-size: 16px;
-  }
-
-  .summary {
-    padding: 8px 10px 62px;
-  }
+  .badge { display: none; }
+  h1 { font-size: 16px; }
+  .summary { padding: 8px 10px 62px; }
 }
 
 @media screen and (width: 393px) and (height: 852px) and (-webkit-device-pixel-ratio: 3) {
@@ -749,12 +594,6 @@ td:nth-child(4) {
     padding-top: calc(12px + env(safe-area-inset-top));
     padding-bottom: calc(20px + env(safe-area-inset-bottom));
   }
-
-  h1 {
-    font-size: 18px;
-  }
-
-  .summary {
-    gap: 8px 10px;
-  }
+  h1 { font-size: 18px; }
+  .summary { gap: 8px 10px; }
 }

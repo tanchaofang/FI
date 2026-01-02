@@ -39,15 +39,19 @@
   const creditTotalEl = document.getElementById("creditTotal"); // 信用（区间）
   const cashTotalEl = document.getElementById("cashTotal"); // 现金（区间）
 
+  // 基准货币（统计区下拉）
   const baseCurrencyInput = document.getElementById("baseCurrency");
-  const baseCurrencyLabel = document.getElementById("baseCurrencyLabel");
+
+  // 汇率设置（单行）
   const baseCurrencyInline = document.getElementById("baseCurrencyInline");
   const manualCurrencyInput = document.getElementById("manualCurrencyInput");
   const manualRateInput = document.getElementById("manualRateInput");
   const addManualRateBtn = document.getElementById("addManualRateBtn");
-  const manualRateList = document.getElementById("manualRateList");
 
-  // ✅ 导入/导出（已移动到统计区）
+  // 统计区新增：显示当前汇率
+  const summaryRateInfoEl = document.getElementById("summaryRateInfo");
+
+  // 导入/导出（统计区）
   const exportBtn = document.getElementById("exportBtn");
   const importFile = document.getElementById("importFile");
 
@@ -96,24 +100,42 @@
     return parts[0] + "." + parts[1];
   }
 
-  function updateBaseCurrencyUI() {
-    const base = baseCurrencyInput.value || "JPY";
-    baseCurrencyLabel.textContent = base;
-    baseCurrencyInline.textContent = base;
+  function getBase() {
+    return (baseCurrencyInput?.value || "JPY").toUpperCase();
   }
 
-  function renderManualRateList() {
+  function updateBaseCurrencyUI() {
+    const base = getBase();
+    if (baseCurrencyInline) baseCurrencyInline.textContent = base;
+
+    // ✅ 同步统计区“当前汇率”展示
+    renderSummaryRateInfo();
+  }
+
+  function renderSummaryRateInfo() {
+    if (!summaryRateInfoEl) return;
+
+    const base = getBase();
     const entries = Object.entries(manualRates || {});
-    manualRateList.textContent = entries.length
-      ? entries.map(([c, r]) => `${c}:${r}`).join("；")
-      : "（无）";
+
+    if (!entries.length) {
+      summaryRateInfoEl.textContent = "（未设置，默认 1:1）";
+      return;
+    }
+
+    // 展示为：1 USD = 150 JPY ｜ 1 EUR = 160 JPY ...
+    const text = entries
+      .map(([c, r]) => `1 ${c} = ${r} ${base}`)
+      .join(" ｜ ");
+
+    summaryRateInfoEl.textContent = text;
   }
 
   function saveState() {
     try {
       localStorage.setItem(LS_KEY_RECORDS, JSON.stringify(records));
       localStorage.setItem(LS_KEY_NEXT_ID, String(nextId));
-      localStorage.setItem(LS_KEY_BASE, baseCurrencyInput.value || "JPY");
+      localStorage.setItem(LS_KEY_BASE, getBase());
       localStorage.setItem(LS_KEY_MANUAL, JSON.stringify(manualRates || {}));
       localStorage.setItem(LS_KEY_GROUP, String(nextGroupId));
       localStorage.setItem(LS_KEY_SUMMARY_START, summaryStartDateEl?.value || "");
@@ -151,8 +173,7 @@
 
     // 基准货币
     const savedBase = localStorage.getItem(LS_KEY_BASE);
-    if (savedBase) baseCurrencyInput.value = savedBase;
-    updateBaseCurrencyUI();
+    if (savedBase && baseCurrencyInput) baseCurrencyInput.value = savedBase;
 
     // 手动汇率
     try {
@@ -192,11 +213,15 @@
 
     // 上次导入的导出文件名
     lastExportName = localStorage.getItem(LS_KEY_EXPORT_NAME) || "";
+
+    // 初始化 UI 文案
+    updateBaseCurrencyUI();
+    renderSummaryRateInfo();
   }
 
   function getRateToBase(currency) {
     const cur = (currency || "").toUpperCase();
-    const base = (baseCurrencyInput.value || "JPY").toUpperCase();
+    const base = getBase();
     if (cur === base) return 1;
     if (manualRates[cur]) return manualRates[cur];
     return 1;
@@ -267,7 +292,7 @@
     let creditBase = 0; // 区间
     let cashBase = 0; // 区间
 
-    const base = baseCurrencyInput.value || "JPY";
+    const base = getBase();
     const startDate = summaryStartDateEl?.value || "";
     const endDate = summaryEndDateEl?.value || "";
 
@@ -301,7 +326,7 @@
     if (creditTotalEl) creditTotalEl.textContent = creditBase.toFixed(2) + " " + base;
     if (cashTotalEl) cashTotalEl.textContent = cashBase.toFixed(2) + " " + base;
 
-    // ✅ 总资产正负颜色切换（股票绿 / 深红）
+    // 总资产正负颜色切换
     if (netTotalEl) {
       const negClass = "summary-value--net-negative";
       if (netTotalBaseGlobal < 0) netTotalEl.classList.add(negClass);
@@ -357,7 +382,7 @@
       });
     }
 
-    // 按 id 倒序，显示所有符合条件的记录
+    // 按 id 倒序
     displayList.sort((a, b) => b.id - a.id);
     return displayList;
   }
@@ -392,12 +417,11 @@
       tdOps.appendChild(delBtn);
       tr.appendChild(tdOps);
 
-      // 其他列（顺序：分类 / 账户类型 / 金额 / 备注 / 货币 / 记账时间 / 发生时间 / 来源）
       addCell(tr, rec.category);
       addCell(tr, rec.accountType);
-      addCell(tr, formatAmount(rec.amount)); // 金额（第 4 列）
-      addCell(tr, rec.note || ""); // 备注
-      addCell(tr, rec.currency || ""); // 货币
+      addCell(tr, formatAmount(rec.amount));
+      addCell(tr, rec.note || "");
+      addCell(tr, rec.currency || "");
       addCell(tr, rec.recordDate || "");
       addCell(tr, rec.occurDate || "");
 
@@ -415,7 +439,6 @@
   }
 
   // ================= 业务规则函数 =================
-
   function addRecordWithRules(fromForm) {
     const groupId = nextGroupId++;
     const baseRec = {
@@ -431,10 +454,7 @@
     addRecord(baseRec, groupId);
 
     // 自动“消费额 入”记录
-    if (
-      baseRec.category === "出" &&
-      accountTypesForExpenseMirror.includes(baseRec.accountType)
-    ) {
+    if (baseRec.category === "出" && accountTypesForExpenseMirror.includes(baseRec.accountType)) {
       const expenseRec = {
         category: "入",
         accountType: "消费额",
@@ -459,7 +479,6 @@
       const nextYear = year + (nextMonth === 0 ? 1 : 0);
       const repaymentDate = new Date(nextYear, nextMonth, 27);
 
-      // 生成本地 YYYY-MM-DD（避免 toISOString()）
       const dateStr = (() => {
         const y = repaymentDate.getFullYear();
         const m = String(repaymentDate.getMonth() + 1).padStart(2, "0");
@@ -521,7 +540,6 @@
     noteEl.value = rec.note;
     syncCategoryForAccountType();
 
-    // 如果是「手动」且有 groupId，则连同自动生成的一组全部删除
     if (rec.source === "手动" && typeof rec.groupId === "number") {
       records = records.filter((r) => r.groupId !== rec.groupId);
     } else {
@@ -544,8 +562,7 @@
     renderAndSave();
   }
 
-  // ================= CSV 处理（稳健版）=================
-
+  // ================= CSV 处理 =================
   function csvEscape(value) {
     const s = value === null || value === undefined ? "" : String(value);
     if (/[",\r\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
@@ -594,21 +611,15 @@
       }
     }
 
-    // last cell
     row.push(cur);
-    // ignore empty trailing line
     if (row.length > 1 || row[0] !== "") rows.push(row);
-
     return rows;
   }
 
   // ================= 事件绑定 =================
-
-  // 表单默认今天
   recordDateEl.value = todayStr();
   occurDateEl.value = todayStr();
 
-  // 账单列表筛选默认今天~今天
   setFilterDatesToToday();
 
   accountTypeEl.addEventListener("change", syncCategoryForAccountType);
@@ -616,7 +627,6 @@
   entryForm.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    // 信用只能“出”
     if (accountTypeEl.value === "信用" && categoryEl.value === "入") {
       alert("信用手动录入时只能选择“出”。“入”记录请通过自动转记生成。");
       return;
@@ -636,7 +646,6 @@
       source: "手动",
     };
 
-    // ✅ 添加账单前确认
     const msg =
       `确认添加这条账单？\n\n` +
       `分类：${formData.category}\n` +
@@ -660,41 +669,55 @@
     syncCategoryForAccountType();
   });
 
-  baseCurrencyInput.addEventListener("input", () => {
-    updateBaseCurrencyUI();
+  // ✅ 基准货币 select：用 change（兼容所有浏览器）
+  if (baseCurrencyInput) {
+    baseCurrencyInput.addEventListener("change", () => {
+      updateBaseCurrencyUI();
 
-    // 切换基准货币后，清空手动汇率，避免误用
-    manualRates = {};
-    renderManualRateList();
+      // 切换基准货币后，清空手动汇率，避免误用（保持你原逻辑）
+      manualRates = {};
+      renderSummaryRateInfo();
 
-    recomputeSummary();
-    saveState();
-  });
+      recomputeSummary();
+      saveState();
+    });
+  }
 
+  // ✅ 更新汇率：增加确认（与“添加账单”一致）
   addManualRateBtn.addEventListener("click", () => {
-    const cur = (manualCurrencyInput.value || "").trim();
+    const cur = (manualCurrencyInput.value || "").trim().toUpperCase();
     const rate = parseFloat(manualRateInput.value);
+    const base = getBase();
+
     if (!cur || isNaN(rate) || rate <= 0) return;
 
-    if (cur.toUpperCase() === (baseCurrencyInput.value || "JPY").toUpperCase()) {
+    if (cur === base) {
       alert("基准货币本身的汇率固定为 1，无需手动设置。");
       return;
     }
 
-    manualRates[cur.toUpperCase()] = rate;
+    const msg =
+      `确认更新汇率？\n\n` +
+      `币种：${cur}\n` +
+      `汇率：1 ${cur} = ${rate} ${base}`;
+
+    if (!window.confirm(msg)) return;
+
+    manualRates[cur] = rate;
+
     manualCurrencyInput.value = "";
     manualRateInput.value = "";
-    renderManualRateList();
+
+    renderSummaryRateInfo();
     recomputeSummary();
     saveState();
   });
 
-  // ✅ 导出（现在在统计区）
+  // ✅ 导出（统计区）
   exportBtn.addEventListener("click", () => {
     const header = ["category", "recordDate", "occurDate", "amount", "accountType", "note", "currency", "source", "groupId", "id"];
     const lines = [header];
 
-    // 导出所有记录，不受筛选影响
     records.forEach((rec) => {
       lines.push([
         rec.category,
@@ -710,10 +733,7 @@
       ]);
     });
 
-    const blob = new Blob([toCSV(lines)], {
-      type: "text/csv;charset=utf-8;",
-    });
-
+    const blob = new Blob([toCSV(lines)], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -727,7 +747,7 @@
     URL.revokeObjectURL(url);
   });
 
-  // ✅ 导入：覆盖旧记录（现在在统计区）
+  // ✅ 导入：覆盖旧记录（统计区）
   importFile.addEventListener("change", () => {
     const file = importFile.files[0];
     if (file && file.name) lastExportName = file.name;
@@ -755,7 +775,6 @@
       const idxGroupId = idx("groupId");
       const idxId = idx("id");
 
-      // 覆盖导入：清空之前的记录和自增 id
       records = [];
       nextId = 1;
       nextGroupId = 1;
@@ -784,7 +803,6 @@
           source: idxSource >= 0 ? (cols[idxSource] ?? "导入") : "导入",
         };
 
-        // 尽量恢复 id/groupId（如果导出的文件里有）
         if (!isNaN(rawId) && rawId > 0) rec.id = rawId;
         if (!isNaN(rawGroup) && rawGroup > 0) rec.groupId = rawGroup;
 
@@ -794,10 +812,8 @@
         if (typeof rec.groupId === "number" && rec.groupId > maxGroup) maxGroup = rec.groupId;
       }
 
-      // 重新归一化 nextId / nextGroupId
       if (maxId > 0) nextId = maxId + 1;
       else {
-        // 没有 id 的话，补齐 id
         let tmpMax = 0;
         records.forEach((r) => {
           if (!r.id) r.id = ++tmpMax;
@@ -854,7 +870,6 @@
   // ================= 初始化 =================
   syncCategoryForAccountType();
   loadState();
-  renderManualRateList();
   renderTable();
   recomputeSummary();
 })();

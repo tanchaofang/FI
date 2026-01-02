@@ -46,30 +46,36 @@
           <span class="summary-value summary-value--cash" id="cashTotal">0</span>
         </div>
 
-        <!-- ✅ 信用在总资产之前；且删除“未纳入总资产”提示 -->
         <div class="summary-item">
           <span class="summary-label">信用</span>
           <span class="summary-value summary-value--credit" id="creditTotal">0</span>
         </div>
 
-        <!-- ✅ 总资产作为最后一项统计数据（在当前基准货币之前） -->
         <div class="summary-item">
           <span class="summary-label">总资产</span>
           <span class="summary-value summary-value--net" id="netTotal">0</span>
         </div>
 
+        <!-- ✅ 基准货币只在统计区，且为下拉 -->
         <div class="summary-item">
           <span class="summary-label">当前基准货币</span>
-          <span class="summary-value summary-value--base">
-            <span id="baseCurrencyLabel">JPY</span>
-          </span>
+          <select id="baseCurrency" class="field-select field-select--currency" aria-label="当前基准货币">
+            <option value="JPY" selected>JPY</option>
+            <option value="RMB">RMB</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+          </select>
         </div>
 
-        <!-- ✅ 导入/导出移动到统计区右下角 -->
+        <!-- ✅ 新增：统计区显示当前汇率（你箭头指的空白处） -->
+        <div class="summary-note" aria-label="当前汇率">
+          <span class="summary-note-label">当前汇率：</span>
+          <span class="summary-note-value" id="summaryRateInfo">（未设置，默认 1:1）</span>
+        </div>
+
+        <!-- 导入/导出移动到统计区右下角 -->
         <div class="summary-actions" aria-label="导入导出">
-          <button type="button" id="exportBtn" class="btn-small btn-pill">
-            导出 CSV
-          </button>
+          <button type="button" id="exportBtn" class="btn-small btn-pill">导出 CSV</button>
 
           <label class="import-pill" title="导入 CSV（覆盖旧记录）">
             <span class="import-pill-text">导入 CSV</span>
@@ -78,151 +84,109 @@
         </div>
       </section>
 
-      <section class="layout-grid">
-        <!-- 左：汇率设置 -->
-        <section class="panel">
-          <fieldset>
-            <legend>汇率设置</legend>
+      <!-- ✅ 单列：汇率设置（不再与录入并列） -->
+      <section class="panel">
+        <fieldset>
+          <legend>汇率设置</legend>
 
-            <div class="section-column">
-              <div class="section-row">
-                <label class="field">
-                  <span class="field-label">基准货币：</span>
-                  <select id="baseCurrency" class="field-select field-select--currency">
-                    <option value="JPY" selected>JPY</option>
-                    <option value="RMB">RMB</option>
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                  </select>
-                </label>
-                <span class="text-small">用于统计和换算的统一货币</span>
-              </div>
-
-              <div class="section-column section-manual-rates">
-                <div class="section-manual-rates-title">手动汇率设置</div>
-
-                <div class="section-row manual-rate-row">
-                  <div class="field-inline">
-                    <span class="field-label">币种</span>
-                    <select id="manualCurrencyInput"
-                            class="field-select field-select--currency">
-                      <option value="">选择币种</option>
-                      <option value="JPY">JPY</option>
-                      <option value="RMB">RMB</option>
-                      <option value="USD">USD</option>
-                      <option value="EUR">EUR</option>
-                    </select>
-                  </div>
-
-                  <div class="field-inline">
-                    <span class="field-label">1 单位 =</span>
-                    <input type="number"
-                           step="0.0001"
-                           id="manualRateInput"
-                           class="field-input field-input--rate">
-                    <span class="field-label" id="baseCurrencyInline">JPY</span>
-                  </div>
-                </div>
-
-                <div class="form-actions">
-                  <button type="button" id="addManualRateBtn">添加 / 更新汇率</button>
-                </div>
-
-                <p class="text-small">
-                  已设置汇率：<span id="manualRateList"></span>
-                </p>
-
-                <div class="hint-box">
-                  说明：在此处设置「其他币种 → 基准货币」的汇率；未设置的币种按 1:1 处理。<br>
-                </div>
-              </div>
+          <!-- ✅ 只保留一行 -->
+          <div class="rate-bar" aria-label="手动汇率设置">
+            <div class="field-inline">
+              <span class="field-label">币种</span>
+              <select id="manualCurrencyInput" class="field-select field-select--currency">
+                <option value="">选择币种</option>
+                <option value="JPY">JPY</option>
+                <option value="RMB">RMB</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+              </select>
             </div>
-          </fieldset>
-        </section>
 
-        <!-- 右：录入表单 -->
-        <section class="panel">
-          <fieldset>
-            <legend>录入账单</legend>
+            <div class="field-inline">
+              <span class="field-label">1 单位 =</span>
+              <input type="number" step="0.0001" id="manualRateInput" class="field-input field-input--rate">
+              <span class="field-label" id="baseCurrencyInline">JPY</span>
+            </div>
 
-            <form id="entryForm">
-              <div class="section-row">
-                <label class="field">
-                  <span class="field-label">分类：</span>
-                  <select id="category" class="field-select">
-                    <option value="出">出</option>
-                    <option value="入">入</option>
-                  </select>
-                </label>
+            <!-- ✅ 样式与“添加账单”一致：用主按钮 -->
+            <button type="button" id="addManualRateBtn">更新汇率</button>
+          </div>
+        </fieldset>
+      </section>
 
-                <label class="field">
-                  <span class="field-label">账户类型：</span>
-                  <!-- ✅ 优先级顺序：现金＞信用＞预算＞消费额 -->
-                  <select id="accountType" class="field-select">
-                    <option value="现金">现金</option>
-                    <option value="信用">信用</option>
-                    <option value="预算">预算</option>
-                    <option value="消费额">消费额</option>
-                  </select>
-                </label>
+      <!-- ✅ 单列：录入账单 -->
+      <section class="panel">
+        <fieldset>
+          <legend>录入账单</legend>
 
-                <label class="field">
-                  <span class="field-label">金额：</span>
-                  <input type="number"
-                         id="amount"
-                         step="0.01"
-                         required
-                         class="field-input field-input--amount">
-                </label>
+          <form id="entryForm">
+            <div class="section-row">
+              <label class="field">
+                <span class="field-label">分类：</span>
+                <select id="category" class="field-select">
+                  <option value="出">出</option>
+                  <option value="入">入</option>
+                </select>
+              </label>
 
-                <label class="field">
-                  <span class="field-label">货币：</span>
-                  <select id="currency"
-                          class="field-select field-select--currency">
-                    <option value="JPY" selected>JPY</option>
-                    <option value="RMB">RMB</option>
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                  </select>
-                </label>
-              </div>
+              <label class="field">
+                <span class="field-label">账户类型：</span>
+                <select id="accountType" class="field-select">
+                  <option value="现金">现金</option>
+                  <option value="信用">信用</option>
+                  <option value="预算">预算</option>
+                  <option value="消费额">消费额</option>
+                </select>
+              </label>
 
-              <div class="section-row">
-                <label class="field">
-                  <span class="field-label">记账时间：</span>
-                  <input type="date" id="recordDate" class="field-input">
-                </label>
-                <label class="field">
-                  <span class="field-label">账单发生时间：</span>
-                  <input type="date" id="occurDate" class="field-input">
-                </label>
-                <span class="text-small">（发生时间默认为今天，可修改）</span>
-              </div>
+              <label class="field">
+                <span class="field-label">金额：</span>
+                <input type="number" id="amount" step="0.01" required class="field-input field-input--amount">
+              </label>
 
-              <div class="section-row">
-                <label class="field field--full">
-                  <span class="field-label">备注：</span>
-                  <input type="text"
-                         id="note"
-                         class="field-input note-input"
-                         placeholder="例如：午饭、房租、水电…">
-                </label>
-              </div>
+              <label class="field">
+                <span class="field-label">货币：</span>
+                <select id="currency" class="field-select field-select--currency">
+                  <option value="JPY" selected>JPY</option>
+                  <option value="RMB">RMB</option>
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                </select>
+              </label>
+            </div>
 
-              <div class="hint-box">
-                规则说明：<br>
-                1）现金 / 信用 的「出」自动生成一条「消费额 入」记录；<br>
-                2）信用「出」（信用卡消费）时，自动生成次月 27 日的「出 现金 / 入 信用」两条还款记录；<br>
-                3）信用手动录入时只能选择「出」；消费额只能选择「入」。
-              </div>
+            <div class="section-row">
+              <label class="field">
+                <span class="field-label">记账时间：</span>
+                <input type="date" id="recordDate" class="field-input">
+              </label>
+              <label class="field">
+                <span class="field-label">账单发生时间：</span>
+                <input type="date" id="occurDate" class="field-input">
+              </label>
+              <span class="text-small">（发生时间默认为今天，可修改）</span>
+            </div>
 
-              <div class="form-actions">
-                <button type="submit">添加账单</button>
-                <button type="button" id="resetFormBtn" class="btn-secondary">重置表单</button>
-              </div>
-            </form>
-          </fieldset>
-        </section>
+            <div class="section-row">
+              <label class="field field--full">
+                <span class="field-label">备注：</span>
+                <input type="text" id="note" class="field-input note-input" placeholder="例如：午饭、房租、水电…">
+              </label>
+            </div>
+
+            <div class="hint-box">
+              规则说明：<br>
+              1）现金 / 信用 的「出」自动生成一条「消费额 入」记录；<br>
+              2）信用「出」（信用卡消费）时，自动生成次月 27 日的「出 现金 / 入 信用」两条还款记录；<br>
+              3）信用手动录入时只能选择「出」；消费额只能选择「入」。
+            </div>
+
+            <div class="form-actions">
+              <button type="submit">添加账单</button>
+              <button type="button" id="resetFormBtn" class="btn-secondary">重置表单</button>
+            </div>
+          </form>
+        </fieldset>
       </section>
 
       <!-- 账单列表 -->
@@ -236,7 +200,6 @@
             </p>
 
             <div class="table-toolbar-right">
-              <!-- 筛选控件 -->
               <label class="text-small field-inline">
                 <span class="field-label">分类：</span>
                 <select id="filterCategory" class="field-select field-select--sm">
@@ -264,15 +227,12 @@
                 <input type="date" id="filterEndDate" class="field-input field-input--sm">
               </label>
 
-              <button type="button"
-                      id="clearFilterBtn"
-                      class="btn-secondary btn-small">
+              <button type="button" id="clearFilterBtn" class="btn-secondary btn-small">
                 重置筛选
               </button>
             </div>
           </div>
 
-          <!-- 只在这一块里横向滚动 -->
           <div class="table-container">
             <table id="recordsTable">
               <thead>
