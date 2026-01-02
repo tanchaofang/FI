@@ -24,7 +24,7 @@
 html,
 body {
   width: 100%;
-  overflow-x: hidden; /* 页面本身不横向滚动，避免黑边 */
+  overflow-x: hidden;
 }
 
 body {
@@ -334,6 +334,10 @@ button.small:hover {
   box-shadow: 0 2px 6px rgba(248, 113, 113, 0.7);
 }
 
+.btn-pill {
+  border-radius: 999px;
+}
+
 /* 文本类 */
 
 .text-small,
@@ -350,8 +354,9 @@ button.small:hover {
 /* ===== 汇总区域 ===== */
 
 .summary {
+  position: relative;
   background: linear-gradient(to right, #eef2ff, #e0f2fe);
-  padding: 10px 14px;
+  padding: 10px 14px 54px;
   margin-bottom: 14px;
   border: 1px solid #d1d5db;
   border-radius: var(--radius-lg);
@@ -385,47 +390,96 @@ button.small:hover {
   border: 1px solid rgba(148, 163, 184, 0.5);
 }
 
-.summary-value--net,
-.summary-value.net {
+/* ✅ 总资产默认：股票绿（正数） */
+.summary-value--net {
   background: #ecfdf3;
   border-color: #bbf7d0;
   color: #166534;
 }
 
-.summary-value--budget,
-.summary-value.budget {
+/* ✅ 总资产为负数：股票深红 */
+.summary-value--net-negative {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #7f1d1d;
+}
+
+.summary-value--budget {
   background: #fefce8;
   border-color: #facc15;
   color: #854d0e;
 }
 
-.summary-value--base,
-.summary-value.base {
+.summary-value--base {
   background: #eff6ff;
   border-color: #93c5fd;
   color: #1d4ed8;
   font-size: 12px;
 }
 
-.summary-value--consume,
-.summary-value.consume {
+.summary-value--consume {
   background: #fef2f2;
   border-color: #fecaca;
   color: #b91c1c;
 }
 
-/* 信用额：偏紫/粉色 */
 .summary-value--credit {
   background: #fdf2ff;
   border-color: #e9d5ff;
   color: #7e22ce;
 }
 
-/* 现金额：橙黄色 */
 .summary-value--cash {
   background: #fffbeb;
   border-color: #fef3c7;
   color: #92400e;
+}
+
+/* ✅ 统计区右下角：导入/导出 */
+.summary-actions {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(209, 213, 219, 0.9);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(8px);
+}
+
+.import-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #f3f4f6;
+  color: #111827;
+  font-size: 11px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.import-pill:hover {
+  background: #e5e7eb;
+}
+
+.import-pill input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.import-pill-text {
+  display: inline-flex;
+  align-items: center;
 }
 
 /* ===== 布局辅助 ===== */
@@ -444,8 +498,6 @@ button.small:hover {
   gap: 4px;
 }
 
-/* 说明框 */
-
 .hint-box {
   margin-top: 4px;
   padding: 6px 8px;
@@ -457,14 +509,10 @@ button.small:hover {
   line-height: 1.5;
 }
 
-/* 备注输入 */
-
 .note-input {
   flex: 1;
   min-width: 220px;
 }
-
-/* 表单按钮组 */
 
 .form-actions {
   margin-top: 6px;
@@ -472,8 +520,6 @@ button.small:hover {
   flex-wrap: wrap;
   gap: 6px;
 }
-
-/* 手动汇率区域 */
 
 .section-manual-rates {
   margin-top: 8px;
@@ -490,8 +536,6 @@ button.small:hover {
   align-items: flex-start;
 }
 
-/* 通用行内布局 */
-
 .field-inline {
   display: inline-flex;
   align-items: center;
@@ -499,7 +543,7 @@ button.small:hover {
   white-space: nowrap;
 }
 
-/* ===== 表格基础样式（账单列表） ===== */
+/* ===== 表格 ===== */
 
 .table-toolbar {
   display: flex;
@@ -542,7 +586,7 @@ td {
   padding: 6px 6px;
   text-align: left;
   font-size: 12px;
-  white-space: nowrap; /* 默认桌面保持一行 */
+  white-space: nowrap;
 }
 
 th {
@@ -559,7 +603,6 @@ tbody tr:hover {
   background-color: #e5f0ff;
 }
 
-/* 金额列右对齐 + 等宽字体（第 4 列仍为金额） */
 td:nth-child(4) {
   text-align: right;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
@@ -605,21 +648,43 @@ td:nth-child(4) {
     min-width: 0;
   }
 
+  /* ✅ 统计区竖屏：两列网格 */
   .summary {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 10px;
+    align-items: start;
+    padding: 10px 10px 62px;
   }
 
   .summary-item {
-    font-size: 12px;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .summary-label {
+    min-width: 52px;
+  }
+
+  .summary-item--span2 {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .summary-actions {
+    right: 8px;
+    bottom: 8px;
+    gap: 6px;
+    padding: 6px 6px;
   }
 
   .summary-value {
     font-size: 12px;
   }
 
-  /* 工具条改为竖排，防止撑宽 */
   .table-toolbar {
     flex-direction: column;
     align-items: flex-start;
@@ -633,13 +698,11 @@ td:nth-child(4) {
     gap: 6px;
   }
 
-  /* 账单列表里所有控件单独占一行，可换行 */
   .field-inline {
     white-space: normal;
     width: 100%;
   }
 
-  /* 表格在窄屏允许换行，整体一起缩小，不被切割 */
   .table-container {
     padding: 4px;
   }
@@ -655,11 +718,6 @@ td:nth-child(4) {
     padding: 4px 2px;
   }
 
-  /* 文件选择框适配小屏 */
-  input[type="file"] {
-    max-width: 100%;
-  }
-
   button {
     padding: 5px 10px;
     font-size: 11px;
@@ -672,8 +730,6 @@ td:nth-child(4) {
   }
 }
 
-/* 更窄屏 & 特定机型微调 */
-
 @media (max-width: 360px) {
   .badge {
     display: none;
@@ -684,7 +740,7 @@ td:nth-child(4) {
   }
 
   .summary {
-    padding: 8px 10px;
+    padding: 8px 10px 62px;
   }
 }
 
@@ -699,12 +755,6 @@ td:nth-child(4) {
   }
 
   .summary {
-    gap: 8px;
+    gap: 8px 10px;
   }
-}
-
-.summary-hint {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-left: 6px;
 }

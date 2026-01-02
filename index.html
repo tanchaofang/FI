@@ -24,7 +24,7 @@
     <main>
       <!-- 汇总信息 -->
       <section class="summary" id="summary" aria-label="汇总信息">
-        <div class="summary-item">
+        <div class="summary-item summary-item--span2">
           <span class="summary-label">统计区间</span>
           <input type="date" id="summaryStartDate" class="input-pill input-month" placeholder="开始日期">
           <span class="text-small">至</span>
@@ -42,19 +42,20 @@
         </div>
 
         <div class="summary-item">
-          <span class="summary-label">总资产</span>
-          <span class="summary-value summary-value--net" id="netTotal">0</span>
+          <span class="summary-label">现金</span>
+          <span class="summary-value summary-value--cash" id="cashTotal">0</span>
         </div>
 
+        <!-- ✅ 信用在总资产之前；且删除“未纳入总资产”提示 -->
         <div class="summary-item">
           <span class="summary-label">信用</span>
           <span class="summary-value summary-value--credit" id="creditTotal">0</span>
-          <span class="summary-hint" id="creditHint"></span>
         </div>
 
+        <!-- ✅ 总资产作为最后一项统计数据（在当前基准货币之前） -->
         <div class="summary-item">
-          <span class="summary-label">现金</span>
-          <span class="summary-value summary-value--cash" id="cashTotal">0</span>
+          <span class="summary-label">总资产</span>
+          <span class="summary-value summary-value--net" id="netTotal">0</span>
         </div>
 
         <div class="summary-item">
@@ -62,6 +63,18 @@
           <span class="summary-value summary-value--base">
             <span id="baseCurrencyLabel">JPY</span>
           </span>
+        </div>
+
+        <!-- ✅ 导入/导出移动到统计区右下角 -->
+        <div class="summary-actions" aria-label="导入导出">
+          <button type="button" id="exportBtn" class="btn-small btn-pill">
+            导出 CSV
+          </button>
+
+          <label class="import-pill" title="导入 CSV（覆盖旧记录）">
+            <span class="import-pill-text">导入 CSV</span>
+            <input type="file" id="importFile" accept=".csv,text/csv">
+          </label>
         </div>
       </section>
 
@@ -144,11 +157,12 @@
 
                 <label class="field">
                   <span class="field-label">账户类型：</span>
+                  <!-- ✅ 优先级顺序：现金＞信用＞预算＞消费额 -->
                   <select id="accountType" class="field-select">
-                    <option value="预算">预算</option>
-                    <option value="消费额">消费额</option>
                     <option value="现金">现金</option>
                     <option value="信用">信用</option>
+                    <option value="预算">预算</option>
+                    <option value="消费额">消费额</option>
                   </select>
                 </label>
 
@@ -218,7 +232,7 @@
 
           <div class="table-toolbar">
             <p class="text-small">
-              当前统计仅按发生时间过滤；导出 CSV 将导出所有记录（不受筛选影响）。
+              当前账单列表筛选按发生时间过滤；导入/导出 CSV 请在统计区右下角操作。
             </p>
 
             <div class="table-toolbar-right">
@@ -236,10 +250,10 @@
                 <span class="field-label">账户类型：</span>
                 <select id="filterAccountType" class="field-select field-select--sm">
                   <option value="">全部</option>
-                  <option value="消费额">消费额</option>
                   <option value="现金">现金</option>
-                  <option value="预算">预算</option>
                   <option value="信用">信用</option>
+                  <option value="预算">预算</option>
+                  <option value="消费额">消费额</option>
                 </select>
               </label>
 
@@ -255,17 +269,6 @@
                       class="btn-secondary btn-small">
                 重置筛选
               </button>
-
-              <button type="button"
-                      id="exportBtn"
-                      class="btn-small">
-                导出当前账单为 CSV
-              </button>
-
-              <label class="text-small field-inline">
-                <span class="field-label">导入 CSV：</span>
-                <input type="file" id="importFile" accept=".csv,text/csv">
-              </label>
             </div>
           </div>
 
